@@ -3,14 +3,15 @@ import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { router } from '@/router'
 import { useScroll } from './hooks/useScroll'
-import VuePdfApp from "vue3-pdf-app"
 import "vue3-pdf-app/dist/icons/main.css"
 import { encode } from 'gpt-tokenizer'
-
-import StepIndicator from './StepIndicator.vue'
-import TextDisplay from './TextDisplay.vue'
-
-const someText = ref('这里是一些要展示的文本...')
+import CourseIntroduction from '@/components/CourseIntroduction.vue'
+import lectureNote from '@/components/LectureNote.vue'
+import LessonPlan from '@/components/LessonPlan.vue'
+import PPT from '@/components/PPT.vue'
+import Outline from '@/components/Outline.vue'
+import StepIndicator from '../components/StepIndicator.vue'
+const someText = ref('测试文本显示...')
 const faqData = ref([])
 
 onMounted(async () => {
@@ -27,17 +28,11 @@ onMounted(async () => {
   // const response_ans = await fetch(url_ans.href)  // 确保路径正确
   // const answers = await response_ans.json()
 });
-
-
-
 const currentStep = ref(1);
-
 const { scrollRef, scrollToBottom } = useScroll()
-
 // Conversation and PDF preview panel toggle control
 let showTab = ref<string>("nav-tab-chat")
 let tabWidth = ref<string>("")
-
 // vue3-pdf-app UI configuration
 let pdfFile = ref<string>("")
 const config = ref<{}>({
@@ -63,6 +58,12 @@ const config = ref<{}>({
     }
   },
 })
+
+//页面切换
+let activePage = ref('课程介绍')
+const handlePageChange = (newPage:string) => {
+  activePage.value = newPage
+}
 
 // Message input box
 const prompt = ref<string>('')
@@ -161,7 +162,7 @@ if (!uuid || uuid === '0') {
   scrollToBottom()
 }
 
-function updateStep(newStep) {
+function updateStep(newStep:number) {
   currentStep.value = newStep;
   sendStepMessage(`已进入第 ${newStep} 步`);
 }
@@ -173,7 +174,7 @@ function nextStep() {
   }
 }
 
-async function sendStepMessage(message) {
+async function sendStepMessage(message:string) {
   // 这里你可以添加发送消息到聊天的逻辑
   // 例如：
   // messageList.value.push({ content: message, sender: 'system' });
@@ -355,72 +356,6 @@ function handleSubmit() {
   onConversation()
 }
 
-
-// async function onConversation() {
-//   let message = prompt.value.trim();
-//   if (!message) {
-//     return; // 如果用户输入为空，直接返回
-//   }
-
-//   // 清空输入框并禁用发送按钮
-//   prompt.value = '';
-//   buttonDisabled.value = true;
-
-//   // 构造发送消息并添加到消息列表
-//   messageList.value.push({
-//     send: {
-//       model: "local-faq",
-//       messages: [{
-//         role: "user",
-//         content: message,
-//         fileName: undefined,
-//         fileSize: 0
-//       }],
-//       temperature: 0,
-//     },
-//     loading: true,
-//   });
-
-//   // 查找匹配的问题和答案
-//   const match = faqData.value.find(faq => faq.question.toLowerCase() === message.toLowerCase());
-
-//   // 如果找到匹配的问题
-//   if (match) {
-//     messageList.value.push({
-//       receive: {
-//         model: "local-faq",
-//         choices: [{
-//           message: {
-//             content: match.answer,
-//             delta: { content: match.answer }
-//           }
-//         }]
-//       },
-//       loading: false
-//     });
-//   } else {
-//     // 如果没有找到匹配，返回默认回答
-//     messageList.value.push({
-//       receive: {
-//         model: "local-faq",
-//         choices: [{
-//           message: {
-//             content: "对不起，我无法找到关于这个问题的答案。"
-//           }
-//         }]
-//       },
-//       loading: false
-//     });
-//   }
-
-//   scrollToBottom();
-//   buttonDisabled.value = false;
-// }
-
-
-
-
-
 // Stream request to ChatGPT3.5
 async function onConversation() {
   let message = prompt.value
@@ -520,11 +455,6 @@ async function onConversation() {
     })
 
     console.log("response", response)
-
-    
-
-
-
     // Reset file upload related states immediately after sending to ChatGPT
     fileName.value = ''
     fileSize.value = 0
@@ -618,9 +548,9 @@ function handleDele(selectedUuid: string) {
 </script>
 
 <template>
-  <div id="layout" class="theme-cyan">
+  <div id="layout" class="common-layout">
     <!-- Sidebar -->
-    <div class="navigation navbar justify-content-center py-xl-4 py-md-3 py-0 px-3">
+      <div class="navigation navbar justify-content-center py-xl-4 py-md-3 py-0 px-3">
       <a href="#" title="ChatGPT-UI" class="brand">
         <svg class="logo" viewBox="0 0 128 128" width="24" height="24" data-v-c0161dce="">
           <path fill="#42b883" d="M78.8,10L64,35.4L49.2,10H0l64,110l64-110C128,10,78.8,10,78.8,10z" data-v-c0161dce="">
@@ -649,98 +579,59 @@ function handleDele(selectedUuid: string) {
       </button>
     </div>
     <!-- Sidebar -->
-    <div class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth">
-      <div class="tab-content">
+      <div class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth">
+        <div class="tab-content">
         <!-- Chat Records -->
-        <div class="tab-pane fade active show" id="nav-tab-chat" role="tabpanel" v-if="showTab === 'nav-tab-chat'">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="mb-0 text-primary">智慧教学</h3>
-            <div>
-              <button class="btn btn-dark" type="button" @click="handleAdd">新建需求</button>
-            </div>
-          </div>
-          <ul class="chat-list">
-            <li class="header d-flex justify-content-between ps-3 pe-3 mb-1">
-              <span>RECENT CHATS</span>
-            </li>
-            <li v-for="(item, index) in conversationList" :class="[item.active ? 'active' : '']"
-              @click="handleSwitch(item.uuid)">
-              <div class="hover_action">
-                <button type="button" class="btn btn-link text-info"><i class="zmdi zmdi-eye"></i></button>
-                <button type="button" class="btn btn-link text-danger" @click="handleDele(item.uuid)"><i
-                    class="zmdi zmdi-delete"></i></button>
+          <div class="tab-pane fade active show" id="nav-tab-chat" role="tabpanel" v-if="showTab === 'nav-tab-chat'">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h3 class="mb-0 text-primary">智慧教学</h3>
+              <div>
+                <button class="btn btn-dark" type="button" @click="handleAdd">新建需求</button>
               </div>
-              <a href="#" class="card">
-                <div class="card-body">
-                  <div class="media">
-                    <div class="avatar me-3">
-                      <span class="status rounded-circle"></span>
-                      <img class="avatar rounded-circle"
-                        :style="[item.active ? 'filter:grayscale(0)' : 'filter:grayscale(1)']"
-                        src="../assets/chatgpt.jpg" alt="avatar">
-                    </div>
-                    <div class="media-body overflow-hidden">
-                      <div class="d-flex align-items-center mb-1">
-                        <h6 class="text-truncate mb-0 me-auto">{{ item.title }}</h6>
-                        <p class="small text-muted text-nowrap ms-4 mb-0">{{ item.createDate }}</p>
+            </div>
+            <ul class="chat-list">
+              <li class="header d-flex justify-content-between ps-3 pe-3 mb-1">
+                <span>RECENT CHATS</span>
+              </li>
+              <li v-for="(item, index) in conversationList" :class="[item.active ? 'active' : '']"
+                @click="handleSwitch(item.uuid)">
+                <div class="hover_action">
+                  <button type="button" class="btn btn-link text-info"><i class="zmdi zmdi-eye"></i></button>
+                  <button type="button" class="btn btn-link text-danger" @click="handleDele(item.uuid)"><i
+                      class="zmdi zmdi-delete"></i></button>
+                </div>
+                <a href="#" class="card">
+                  <div class="card-body">
+                    <div class="media">
+                      <div class="avatar me-3">
+                        <span class="status rounded-circle"></span>
+                        <img class="avatar rounded-circle"
+                          :style="[item.active ? 'filter:grayscale(0)' : 'filter:grayscale(1)']"
+                          src="../assets/chatgpt.jpg" alt="avatar">
                       </div>
-                      <div class="text-truncate">{{ item.lastChatContent }}</div>
+                      <div class="media-body overflow-hidden">
+                        <div class="d-flex align-items-center mb-1">
+                          <h6 class="text-truncate mb-0 me-auto">{{ item.title }}</h6>
+                          <p class="small text-muted text-nowrap ms-4 mb-0">{{ item.createDate }}</p>
+                        </div>
+                        <div class="text-truncate">{{ item.lastChatContent }}</div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </a>
-            </li>
-          </ul>
-        </div>
-        <!-- end Chat Records -->
-        <!-- PDF Preview -->
-        <div class="tab-pane fade active show" id="nav-tab-doc" role="tabpanel" v-if="showTab === 'nav-tab-doc'">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="mb-0 text-primary">ChatGPT-PDF</h3>
-            <div>
-              <button class="btn btn-dark" type="button" @click="handleBackChat">Back Chat</button>
-            </div>
+                </a>
+              </li>
+            </ul>
           </div>
-          <ul class="chat-list">
-            <li class="header d-flex justify-content-between ps-3 pe-3 mb-1">
-              <span>PREVIEW</span>
-            </li>
-            <li>
-              <vue-pdf-app style="height: 100vh;" :config="config" :pdf="pdfFile"></vue-pdf-app>
-            </li>
-          </ul>
-        </div>
-        <!-- end PDF Preview -->
+        <!-- end Chat Records -->
       </div>
-    </div>
-
+      </div>
     <div class="main px-xl-5 px-lg-4 px-3">
       <div class="chat-body">
         <!-- Chat Box Header -->
         <div class="chat-header border-bottom py-xl-4 py-md-3 py-2">
-          <StepIndicator :currentStep="currentStep" @updateStep="updateStep" @nextStep="nextStep" />
-          <!-- <div class="container-xxl">
-            <div class="row align-items-center">
-              <div class="col-6 col-xl-4">
-                <div class="media">
-                  <div class="me-3 show-user-detail">
-                    <span class="status rounded-circle"></span>
-                    <img class="avatar rounded-circle" src="../assets/chatgpt.jpg" alt="avatar">
-                  </div>
-                  <div class="media-body overflow-hidden">
-                    <div class="d-flex align-items-center mb-1">
-                      <h6 class="text-truncate mb-0 me-auto">ChatGPT 3.5</h6>
-                    </div>
-                    <div class="text-truncate">Powered By OpenAI</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> -->
+          <StepIndicator @update:page="handlePageChange"></StepIndicator>
         </div>
         <!-- end Chat Box Header -->
-
-
         <div class="chat-content" id="scrollRef" ref="scrollRef">
           <div class="container-xxl">
             <ul class="list-unstyled py-4" v-for="(item, index) of messageList">
@@ -853,35 +744,18 @@ function handleDele(selectedUuid: string) {
           </div>
         </div>
         <!-- end Message Input Box -->
-
-
       </div>
     </div>
-
-    <div class="main px-xl-5 px-lg-4 px-3" style="background-color: aquamarine;">
-      <!-- 文本展示模块 -->
-      <TextDisplay :text="someText" />
+    <div class="main px-xl-1 px-lg-1 px-1">
+      <div v-if="activePage === '课程介绍'"><CourseIntroduction></CourseIntroduction></div>
+      <div v-else-if="activePage === '目录大纲'"><Outline></Outline></div>
+      <div v-else-if="activePage === '教案'"><LessonPlan></LessonPlan></div>
+      <div v-else-if="activePage === '讲义'"><lectureNote></lectureNote></div>
+      <div v-else-if="activePage === 'PPT'"><PPT></PPT></div>
     </div>
-
-    <!-- Empty Page -->
-    <div class="main px-xl-5 px-lg-4 px-3" style="display:none">
-      <div class="chat-body">
-        <div class="chat d-flex justify-content-center align-items-center h-100 text-center py-xl-4 py-md-3 py-2">
-          <div class="container-xxl">
-            <div class="avatar lg avatar-bg me-auto ms-auto mb-5">
-              <img class="avatar lg rounded-circle border" src="../assets/user.png" alt="">
-              <span class="a-bg-1"></span>
-              <span class="a-bg-2"></span>
-            </div>
-            <h5 class="font-weight-bold">Hey, Robert!</h5>
-            <p>Please select a chat to start messaging.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- end Empty Page -->
+    <!-- 后续页面内容可按照实际需求自行添加 -->
+    <!-- <el-main><TextDisplay :text="someText" /></el-main> -->
   </div>
-
 </template>
 
 <style scoped>
@@ -889,9 +763,6 @@ function handleDele(selectedUuid: string) {
   display: flex;
   height: 100vh;
 }
-
-
-
 .chat-right {
   width: 300px;
   /* 右侧固定宽度 */
@@ -899,5 +770,11 @@ function handleDele(selectedUuid: string) {
   display: flex;
   justify-content: flex-end;
   background-color: aqua;
+}
+.demo-tabs > .el-tabs__content {
+  padding: 32px;
+  color: #6b778c;
+  font-size: 32px;
+  font-weight: 600;
 }
 </style>

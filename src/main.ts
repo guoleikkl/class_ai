@@ -8,19 +8,20 @@ import githubTheme from '@kangc/v-md-editor/lib/theme/github.js'
 import '@kangc/v-md-editor/lib/theme/style/github.css'
 
 // vue-markdown highlightjs
-import hljs from 'highlight.js';
+import hljs from 'highlight.js'
 
 VMdPreview.use(githubTheme, {
-    Hljs: hljs,
+  Hljs: hljs,
 })
 
 import { createApp } from 'vue'
-
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 import App from './App.vue'
 import router from './router'
 
 const app = createApp(App)
-
+app.use(ElementPlus)
 app.use(router)
 
 app.use(VMdPreview)
