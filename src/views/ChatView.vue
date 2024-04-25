@@ -5,15 +5,20 @@ import { router } from '@/router'
 import { useScroll } from './hooks/useScroll'
 import "vue3-pdf-app/dist/icons/main.css"
 import { encode } from 'gpt-tokenizer'
-import CourseIntroduction from '@/components/CourseIntroduction.vue'
-import lectureNote from '@/components/LectureNote.vue'
-import LessonPlan from '@/components/LessonPlan.vue'
-import PPT from '@/components/PPT.vue'
-import Outline from '@/components/Outline.vue'
+import CourseIntroduction from '@/components/FileDisplay/CourseIntroduction.vue'
+import LectureNote from '@/components/FileDisplay/LectureNote.vue'
+import LessonPlan from '@/components/FileDisplay/LessonPlan.vue'
+import PPT from '@/components/FileDisplay/PPT.vue'
+import Outline from '@/components/FileDisplay/Outline.vue'
 import StepIndicator from '../components/StepIndicator.vue'
+
+
 const someText = ref('测试文本显示...')
 const faqData = ref([])
 
+
+// 在组件挂载到 DOM 上之后执行
+// 加载数据
 onMounted(async () => {
   const url_data = new URL('../assets/data.json', import.meta.url);
   const response_data = await fetch(url_data.href)  // 确保路径正确
@@ -23,13 +28,19 @@ onMounted(async () => {
   const url_faqs = new URL('../assets/faqs.json', import.meta.url);
   const response_faqs = await fetch(url_faqs.href)  // 确保路径正确 
   faqData.value = await response_faqs.json()
- 
+
   // const url_ans = new URL('../assets/answers.json', import.meta.url);
   // const response_ans = await fetch(url_ans.href)  // 确保路径正确
   // const answers = await response_ans.json()
 });
+
+// 当前步骤
 const currentStep = ref(1);
+
+// 滚动到底部
 const { scrollRef, scrollToBottom } = useScroll()
+
+
 // Conversation and PDF preview panel toggle control
 let showTab = ref<string>("nav-tab-chat")
 let tabWidth = ref<string>("")
@@ -61,14 +72,14 @@ const config = ref<{}>({
 
 //页面切换
 let activePage = ref('课程介绍')
-const handlePageChange = (newPage:string) => {
+const handlePageChange = (newPage: string) => {
   activePage.value = newPage
 }
 
-// Message input box
+// 输入框的消息
 const prompt = ref<string>('')
 
-// Loading state and button state
+// button按钮状态
 const buttonDisabled = ref<boolean>(false)
 
 // Get uuid from URL params
@@ -90,8 +101,8 @@ interface Message {
     messages: {
       role: string;
       content: string;
-      fileName: any;
-      fileSize: number;
+      // fileName: any;
+      // fileSize: number;
     }[];
     temperature: number;
   };
@@ -113,17 +124,20 @@ interface Message {
 var conversationList = ref<Conversation[]>([])
 var messageList = ref<Message[]>([]);
 
+// 从浏览器本地存储中获取'chatStore'数据
 let conversations = window.localStorage.getItem("chatStore")
 if (conversations) {
   conversationList.value = JSON.parse(conversations)
 }
 
 // Check if new conversation
+// 创建新对话或者加载现有对话
 if (!uuid || uuid === '0') {
   uuid = Date.now().toString()
 
   // Initialize empty conversation
   if (!conversations) {
+    // conversations为空，创建新对话
     conversationList.value.push({
       title: 'New Chat',
       uuid: uuid,
@@ -133,7 +147,7 @@ if (!uuid || uuid === '0') {
       active: true
     })
   } else {
-    // If has history, get last conversation
+    // 如果有历史记录，获取最后一次对话
     let lastConversation = conversationList.value[conversationList.value.length - 1]
     uuid = lastConversation.uuid
 
@@ -142,6 +156,7 @@ if (!uuid || uuid === '0') {
       messageList.value = JSON.parse(messages)
     }
 
+    // 导航到'Chat'页面
     router.push({ name: 'Chat', params: { uuid } })
   }
 } else {
@@ -162,19 +177,19 @@ if (!uuid || uuid === '0') {
   scrollToBottom()
 }
 
-function updateStep(newStep:number) {
-  currentStep.value = newStep;
-  sendStepMessage(`已进入第 ${newStep} 步`);
-}
+// function updateStep(newStep: number) {
+//   currentStep.value = newStep;
+//   sendStepMessage(`已进入第 ${newStep} 步`);
+// }
 
-function nextStep() {
-  if (currentStep.value < 4) {
-    currentStep.value += 1;
-    sendStepMessage(`已进入第 ${currentStep.value} 步`);
-  }
-}
+// function nextStep() {
+//   if (currentStep.value < 4) {
+//     currentStep.value += 1;
+//     sendStepMessage(`已进入第 ${currentStep.value} 步`);
+//   }
+// }
 
-async function sendStepMessage(message:string) {
+async function sendStepMessage(message: string) {
   // 这里你可以添加发送消息到聊天的逻辑
   // 例如：
   // messageList.value.push({ content: message, sender: 'system' });
@@ -199,12 +214,12 @@ async function sendStepMessage(message:string) {
   scrollToBottom();
 }
 
-// Set active conversation
+// 创建一个新的聊天会话
 function handleAdd() {
   // Reset the message record of the new conversation
   messageList.value = []
 
-  // Reset the active status of the conversation list
+  // 将所有会话设置为非活动状态
   conversationList.value.forEach((item, index) => {
     item.active = false
   })
@@ -217,15 +232,15 @@ function handleAdd() {
     uuid: uuid,
     isEdit: false,
     createDate: new Date().toLocaleString(),
-    lastChatContent: 'Hello I am ChatGPT3.5...',
+    lastChatContent: '你好，我是智慧教学助手',
     active: true
   })
 
-  // Save the conversation to local storage
+  // 保存当前会话到本地存储
   window.localStorage.setItem("chatStore", JSON.stringify(conversationList.value))
 }
 
-// Menu toggle
+// 控制菜单的显示和隐藏
 function handleMenu() {
   let rootbody = document.getElementById("rootbody")
   if (rootbody) {
@@ -237,7 +252,7 @@ function handleMenu() {
   }
 }
 
-// Switch conversation
+// 切换会话
 function handleSwitch(selectedUuid: string) {
   uuid = selectedUuid
 
@@ -261,70 +276,6 @@ function handleSwitch(selectedUuid: string) {
   router.push({ name: 'Chat', params: { uuid } })
 }
 
-// File upload related
-var fileName = ref()
-var fileSize = ref<number>(0)
-var formattedFileSize = ref<string>('0B')
-var fileUploadCard = ref<boolean>(false)
-
-var fileContent = ref()
-
-
-// Handle file upload
-function handleUpload(e: Event) {
-  const target = e.target as HTMLInputElement;
-  if (target.files && target.files[0].size >= 5 * 1024 * 1024) {
-    alert('Maximum file size limit is 5MB')
-    return
-  } else if (!target.files || target.files.length === 0) {
-    alert('Please select a file')
-    return
-  }
-
-  // Set file upload style
-  fileName.value = target.files[0].name
-  fileSize.value = target.files[0].size
-  formatFileSize()
-
-  // Preview PDF
-  showTab.value = 'nav-tab-doc'
-  tabWidth.value = 'width: 60%'
-
-  pdfFile.value = URL.createObjectURL(target.files[0])
-
-  // Upload file and extract content
-  const formData = new FormData()
-  formData.append('doc', target.files[0])
-
-  fetch(import.meta.env.VITE_API_UPLOAD, {
-    method: 'POST',
-    body: formData,
-  })
-    .then(response => response.text())
-    .catch(error => console.error('Error:', error))
-    .then(function (docContent) {
-      if (typeof docContent !== 'string') {
-        alert("Failed to extract file content")
-        return
-      }
-
-      const tokens = encode(docContent)
-
-      if (tokens.length > 4096) {
-        alert("Exceeded maximum token limit of 4096")
-        fileName.value = ''
-        fileSize.value = 0
-        formattedFileSize.value = '0B'
-      } else {
-        // Set the extracted content
-        fileContent.value = docContent
-
-        // Show file upload card
-        fileUploadCard.value = true
-      }
-    })
-}
-
 function handleBackChat() {
   showTab.value = 'nav-tab-chat'
   tabWidth.value = ''
@@ -335,28 +286,12 @@ function handleBackDoc() {
   tabWidth.value = 'width: 40%'
 }
 
-// Format file size in Bytes, KB, MB, GB
-function formatFileSize() {
-  if (fileSize.value < 1024) {
-    formattedFileSize.value = fileSize.value + 'B';
-  } else if (fileSize.value < (1024 * 1024)) {
-    var temp = fileSize.value / 1024
-    formattedFileSize.value = temp.toFixed(2) + 'KB'
-  } else if (fileSize.value < (1024 * 1024 * 1024)) {
-    var temp = fileSize.value / (1024 * 1024)
-    formattedFileSize.value = temp.toFixed(2) + 'MB'
-  } else {
-    var temp = fileSize.value / (1024 * 1024 * 1024);
-    formattedFileSize.value = temp.toFixed(2) + 'GB'
-  }
-}
-
 // Submit message
 function handleSubmit() {
   onConversation()
 }
 
-// Stream request to ChatGPT3.5
+// 提交消息
 async function onConversation() {
   let message = prompt.value
   if (!message || message.trim() === '')
@@ -365,7 +300,7 @@ async function onConversation() {
   // Clear input box and disable button
   prompt.value = ''
   buttonDisabled.value = true
-  fileUploadCard.value = false
+  // fileUploadCard.value = false
 
   // Send message (for local display, not directly sent to GPT)
   messageList.value.push({
@@ -375,8 +310,6 @@ async function onConversation() {
         {
           role: "user",
           content: message,
-          fileName: fileName.value,
-          fileSize: fileSize.value,
         },
       ],
       temperature: 0.7,
@@ -387,48 +320,11 @@ async function onConversation() {
   scrollToBottom()
 
 
-
-  // 查找匹配的问题和答案
-  const match = faqData.value.find(faq => faq.question.toLowerCase() === message.toLowerCase());
-  // 如果找到匹配的问题
-  console.log("找到了：", match)
-
-  // 如果找到匹配的问题
-  // if (match) {
-  //   messageList.value.push({
-  //     receive: {
-  //       model: "local-faq",
-  //       choices: [{
-  //         message: {
-  //           content: match.answer
-  //         }
-  //       }]
-  //     },
-  //     loading: false
-  //   });
-  // } else {
-  //   // 如果没有找到匹配，返回默认回答
-  //   messageList.value.push({
-  //     receive: {
-  //       model: "local-faq",
-  //       choices: [{
-  //         message: {
-  //           content: "对不起，我无法找到关于这个问题的答案。"
-  //         }
-  //       }]
-  //     },
-  //     loading: false
-  //   });
-  // }
-
-  // scrollToBottom();
-  // buttonDisabled.value = false;
-
   // Stream request to ChatGPT3.5
   try {
-    if (fileContent.value) {
-      message += ', Uploaded file content: ' + fileContent.value
-    }
+    // if (fileContent.value) {
+    //   message += ', Uploaded file content: ' + fileContent.value
+    // }
 
     let data = {
       "model": "glm-4",
@@ -446,7 +342,7 @@ async function onConversation() {
 
     console.log("headers", headers)
     console.log("import.meta.env.VITE_APP_URL", import.meta.env.VITE_APP_URL)
- 
+
     // Send request
     let response = await fetch(import.meta.env.VITE_APP_URL, {
       method: 'POST',
@@ -455,17 +351,12 @@ async function onConversation() {
     })
 
     console.log("response", response)
-    // Reset file upload related states immediately after sending to ChatGPT
-    fileName.value = ''
-    fileSize.value = 0
-    formattedFileSize.value = '0B'
 
     // if (!response.ok) {
     //   throw new Error('Network response was not ok')
     // }
- 
-    // console.log("response", response)
-    // Read the data returned from the stream
+
+
     const reader = response.body?.getReader();
     // console.log("reader",reader)
     const textDecoder = new TextDecoder()
@@ -480,7 +371,7 @@ async function onConversation() {
 
         // Restore button state
         buttonDisabled.value = false
-        fileContent.value = ''
+        // fileContent.value = ''
 
         // Save current messages
         window.localStorage.setItem(uuid, JSON.stringify(messageList.value))
@@ -488,7 +379,6 @@ async function onConversation() {
         break
       }
 
-      console.log('hhhhh')
 
       // Convert chunk string to array
       let chunkText = textDecoder.decode(value)
@@ -524,6 +414,7 @@ async function onConversation() {
   }
 }
 
+// 删除会话
 function handleDele(selectedUuid: string) {
   // Reset the active state of the conversation list
   conversationList.value.forEach((item, index) => {
@@ -549,8 +440,8 @@ function handleDele(selectedUuid: string) {
 
 <template>
   <div id="layout" class="common-layout">
-    <!-- Sidebar -->
-      <div class="navigation navbar justify-content-center py-xl-4 py-md-3 py-0 px-3">
+    <!-- 侧边栏 -->
+    <div class="navigation navbar justify-content-center py-xl-4 py-md-3 py-0 px-3">
       <a href="#" title="ChatGPT-UI" class="brand">
         <svg class="logo" viewBox="0 0 128 128" width="24" height="24" data-v-c0161dce="">
           <path fill="#42b883" d="M78.8,10L64,35.4L49.2,10H0l64,110l64-110C128,10,78.8,10,78.8,10z" data-v-c0161dce="">
@@ -579,52 +470,53 @@ function handleDele(selectedUuid: string) {
       </button>
     </div>
     <!-- Sidebar -->
-      <div class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth">
-        <div class="tab-content">
+    <div class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth">
+      <div class="tab-content">
         <!-- Chat Records -->
-          <div class="tab-pane fade active show" id="nav-tab-chat" role="tabpanel" v-if="showTab === 'nav-tab-chat'">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <h3 class="mb-0 text-primary">智慧教学</h3>
-              <div>
-                <button class="btn btn-dark" type="button" @click="handleAdd">新建需求</button>
-              </div>
+        <div class="tab-pane fade active show" id="nav-tab-chat" role="tabpanel" v-if="showTab === 'nav-tab-chat'">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0 text-primary">智慧教学</h3>
+            <div>
+              <button class="btn btn-dark" type="button" @click="handleAdd">新建需求</button>
             </div>
-            <ul class="chat-list">
-              <li class="header d-flex justify-content-between ps-3 pe-3 mb-1">
-                <span>RECENT CHATS</span>
-              </li>
-              <li v-for="(item, index) in conversationList" :class="[item.active ? 'active' : '']"
-                @click="handleSwitch(item.uuid)">
-                <div class="hover_action">
-                  <button type="button" class="btn btn-link text-info"><i class="zmdi zmdi-eye"></i></button>
-                  <button type="button" class="btn btn-link text-danger" @click="handleDele(item.uuid)"><i
-                      class="zmdi zmdi-delete"></i></button>
-                </div>
-                <a href="#" class="card">
-                  <div class="card-body">
-                    <div class="media">
-                      <div class="avatar me-3">
-                        <span class="status rounded-circle"></span>
-                        <img class="avatar rounded-circle"
-                          :style="[item.active ? 'filter:grayscale(0)' : 'filter:grayscale(1)']"
-                          src="../assets/chatgpt.jpg" alt="avatar">
+          </div>
+          <ul class="chat-list">
+            <li class="header d-flex justify-content-between ps-3 pe-3 mb-1">
+              <span>RECENT CHATS</span>
+            </li>
+            <!-- 会话列表 -->
+            <li v-for="(item, index) in conversationList" :class="[item.active ? 'active' : '']"
+              @click="handleSwitch(item.uuid)">
+              <div class="hover_action">
+                <button type="button" class="btn btn-link text-info"><i class="zmdi zmdi-eye"></i></button>
+                <button type="button" class="btn btn-link text-danger" @click="handleDele(item.uuid)"><i
+                    class="zmdi zmdi-delete"></i></button>
+              </div>
+              <a href="#" class="card">
+                <div class="card-body">
+                  <div class="media">
+                    <div class="avatar me-3">
+                      <span class="status rounded-circle"></span>
+                      <img class="avatar rounded-circle"
+                        :style="[item.active ? 'filter:grayscale(0)' : 'filter:grayscale(1)']"
+                        src="../assets/chatgpt.jpg" alt="avatar">
+                    </div>
+                    <div class="media-body overflow-hidden">
+                      <div class="d-flex align-items-center mb-1">
+                        <h6 class="text-truncate mb-0 me-auto">{{ item.title }}</h6>
+                        <p class="small text-muted text-nowrap ms-4 mb-0">{{ item.createDate }}</p>
                       </div>
-                      <div class="media-body overflow-hidden">
-                        <div class="d-flex align-items-center mb-1">
-                          <h6 class="text-truncate mb-0 me-auto">{{ item.title }}</h6>
-                          <p class="small text-muted text-nowrap ms-4 mb-0">{{ item.createDate }}</p>
-                        </div>
-                        <div class="text-truncate">{{ item.lastChatContent }}</div>
-                      </div>
+                      <div class="text-truncate">{{ item.lastChatContent }}</div>
                     </div>
                   </div>
-                </a>
-              </li>
-            </ul>
-          </div>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
         <!-- end Chat Records -->
       </div>
-      </div>
+    </div>
     <div class="main px-xl-5 px-lg-4 px-3">
       <div class="chat-body">
         <!-- Chat Box Header -->
@@ -642,16 +534,16 @@ function handleDele(selectedUuid: string) {
                   <div class="message-row d-flex align-items-center justify-content-end">
                     <div class="message-content border p-3">
                       {{ item.send.messages[0].content }}
-                      <div class="attachment" v-show="item.send.messages[0].fileName" @click="handleBackDoc">
+                      <div class="attachment"  @click="handleBackDoc">
                         <div class="media mt-2">
-                          <div class="avatar me-2">
-                            <div class="avatar rounded no-image orange">
+                          <!-- <div class="avatar me-2"> -->
+                            <!-- <div class="avatar rounded no-image orange">
                               <i class="zmdi zmdi-collection-pdf"></i>
-                            </div>
-                          </div>
+                            </div> -->
+                          <!-- </div> -->
                           <div class="media-body overflow-hidden">
-                            <h6 class="text-truncate mb-0">{{ item.send.messages[0].fileName }}</h6>
-                            <span class="file-size">{{ item.send.messages[0].fileSize }}</span>
+                            <!-- <h6 class="text-truncate mb-0">{{ item.send.messages[0].fileName }}</h6> -->
+                            <!-- <span class="file-size">{{ item.send.messages[0].fileSize }}</span> -->
                           </div>
                         </div>
                       </div>
@@ -706,28 +598,8 @@ function handleDele(selectedUuid: string) {
                   <div class="input-group align-items-center">
                     <input type="text" v-model="prompt" class="form-control border-0 pl-0"
                       placeholder="Type your message...">
-                    <div class="attachment" v-show="fileUploadCard" @click="handleBackDoc">
-                      <div class="media mt-2">
-                        <div class="avatar me-2">
-                          <div class="avatar rounded no-image orange">
-                            <i class="zmdi zmdi-collection-pdf"></i>
-                          </div>
-                        </div>
-                        <div class="media-body overflow-hidden">
-                          <h6 class="text-truncate mb-0">{{ fileName }}</h6>
-                          <span class="file-size">{{ fileSize }}</span>
-                        </div>
-                      </div>
-                    </div>
                     <div class="input-group-append">
                       <span class="input-group-text border-0">
-                        <input type="file" accept="application/pdf" id="fileInput" ref="file" @change="handleUpload"
-                          style="display:none">
-                        <button class="btn btn-sm btn-link text-muted" data-toggle="tooltip"
-                          @click="($refs.file as HTMLInputElement).click()" title="" type="button"
-                          data-original-title="Attachment">
-                          <i class="zmdi zmdi-attachment font-22"></i>
-                        </button>
                       </span>
                     </div>
                     <div class="input-group-append">
@@ -746,12 +618,23 @@ function handleDele(selectedUuid: string) {
         <!-- end Message Input Box -->
       </div>
     </div>
+
     <div class="main px-xl-1 px-lg-1 px-1">
-      <div v-if="activePage === '课程介绍'"><CourseIntroduction></CourseIntroduction></div>
-      <div v-else-if="activePage === '目录大纲'"><Outline></Outline></div>
-      <div v-else-if="activePage === '教案'"><LessonPlan></LessonPlan></div>
-      <div v-else-if="activePage === '讲义'"><lectureNote></lectureNote></div>
-      <div v-else-if="activePage === 'PPT'"><PPT></PPT></div>
+      <div v-if="activePage === '课程介绍'">
+        <CourseIntroduction></CourseIntroduction>
+      </div>
+      <div v-else-if="activePage === '目录大纲'">
+        <Outline></Outline>
+      </div>
+      <div v-else-if="activePage === '教案'">
+        <LessonPlan></LessonPlan>
+      </div>
+      <div v-else-if="activePage === '讲义'">
+        <LectureNote></LectureNote>
+      </div>
+      <div v-else-if="activePage === 'PPT'">
+        <PPT></PPT>
+      </div>
     </div>
     <!-- 后续页面内容可按照实际需求自行添加 -->
     <!-- <el-main><TextDisplay :text="someText" /></el-main> -->
@@ -763,6 +646,7 @@ function handleDele(selectedUuid: string) {
   display: flex;
   height: 100vh;
 }
+
 .chat-right {
   width: 300px;
   /* 右侧固定宽度 */
@@ -771,7 +655,8 @@ function handleDele(selectedUuid: string) {
   justify-content: flex-end;
   background-color: aqua;
 }
-.demo-tabs > .el-tabs__content {
+
+.demo-tabs>.el-tabs__content {
   padding: 32px;
   color: #6b778c;
   font-size: 32px;
