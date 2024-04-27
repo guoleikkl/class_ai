@@ -11,6 +11,7 @@ import LessonPlan from '@/components/FileDisplay/LessonPlan.vue'
 import PPT from '@/components/FileDisplay/PPT.vue'
 import Outline from '@/components/FileDisplay/Outline.vue'
 import StepIndicator from '../components/StepIndicator.vue'
+import { el } from 'element-plus/es/locale/index.mjs'
 
 
 // 当前步骤
@@ -249,10 +250,10 @@ function handleBackChat() {
   tabWidth.value = ''
 }
 
-function handleBackDoc() {
-  showTab.value = 'nav-tab-doc'
-  tabWidth.value = 'width: 40%'
-}
+// function handleBackDoc() {
+//   showTab.value = 'nav-tab-doc'
+//   tabWidth.value = 'width: 40%'
+// }
 
 // Submit message
 function handleSubmit() {
@@ -403,7 +404,8 @@ function handleDele(selectedUuid: string) {
   <div id="layout" class="common-layout">
    
     <!-- Sidebar -->
-    <div class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth">
+    <el-aside class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth">
+    <!-- <div class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth"> -->
       <div class="tab-content">
         <!-- Chat Records -->
         <div class="tab-pane fade active show" id="nav-tab-chat" role="tabpanel" v-if="showTab === 'nav-tab-chat'">
@@ -432,7 +434,7 @@ function handleDele(selectedUuid: string) {
                       <span class="status rounded-circle"></span>
                       <img class="avatar rounded-circle"
                         :style="[item.active ? 'filter:grayscale(0)' : 'filter:grayscale(1)']"
-                        src="../assets/chatgpt.jpg" alt="avatar">
+                        src="../assets/ai.png" alt="avatar">
                     </div>
                     <div class="media-body overflow-hidden">
                       <div class="d-flex align-items-center mb-1">
@@ -449,7 +451,8 @@ function handleDele(selectedUuid: string) {
         </div>
         <!-- end Chat Records -->
       </div>
-    </div>
+    <!-- </div> -->
+    </el-aside>
     <div class="main px-xl-5 px-lg-4 px-3">
       <div class="chat-body">
         <!-- Chat Box Header -->
@@ -481,7 +484,7 @@ function handleDele(selectedUuid: string) {
               <!-- Left Message -->
               <li class="d-flex message" v-if="item.receive">
                 <div class="mr-lg-3 me-2">
-                  <img class="avatar sm rounded-circle" src="../assets/chatgpt.jpg" alt="avatar">
+                  <img class="avatar sm rounded-circle" src="../assets/ai.png" alt="avatar">
                 </div>
                 <div class="message-body">
                   <span class="date-time text-muted">{{ item.receive.model }}</span>
@@ -497,7 +500,7 @@ function handleDele(selectedUuid: string) {
               <!-- Loading Message -->
               <li class="d-flex message" v-if="item.loading">
                 <div class="mr-lg-3 me-2">
-                  <img class="avatar sm rounded-circle" src="../assets/chatgpt.jpg" alt="avatar">
+                  <img class="avatar sm rounded-circle" src="../assets/ai.png" alt="avatar">
                 </div>
                 <div class="message-body">
                   <div class="message-row d-flex align-items-center">

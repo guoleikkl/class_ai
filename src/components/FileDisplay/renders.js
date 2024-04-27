@@ -1,4 +1,4 @@
-// import { defaultOptions, renderAsync } from "docx-preview";
+import { defaultOptions, renderAsync } from "docx-preview";
 import renderPptx from "@/vendors/pptx";
 // import renderSheet from "@/vendors/xlsx";
 // import renderPdf from "@/vendors/pdf";
@@ -16,17 +16,17 @@ const VueWrapper = (el) => ({
 
 const handlers = [
   // 使用docxjs支持，目前效果最好的渲染器
-  // {
-  //   accepts: ["docx"],
-  //   handler: async (buffer, target) => {
-  //     const docxOptions = Object.assign(defaultOptions, {
-  //       debug: true,
-  //       experimental: true,
-  //     });
-  //     await renderAsync(buffer, target, null, docxOptions);
-  //     return VueWrapper(target);
-  //   },
-  // },
+  {
+    accepts: ["docx"],
+    handler: async (buffer, target) => {
+      const docxOptions = Object.assign(defaultOptions, {
+        debug: true,
+        experimental: true,
+      });
+      await renderAsync(buffer, target, null, docxOptions);
+      return VueWrapper(target);
+    },
+  },
   // 使用pptx2html，已通过默认值更替
   {
     accepts: ["pptx"],
