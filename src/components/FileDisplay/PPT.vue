@@ -16,9 +16,6 @@ import axios from "axios";
 
 export default {
   name: "PPT",
-  props: {
-    msg: String,
-  },
   data() {
     return {
       // 加载状态跟踪

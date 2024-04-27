@@ -13,27 +13,6 @@ import Outline from '@/components/FileDisplay/Outline.vue'
 import StepIndicator from '../components/StepIndicator.vue'
 
 
-const someText = ref('测试文本显示...')
-const faqData = ref([])
-
-
-// 在组件挂载到 DOM 上之后执行
-// 加载数据
-onMounted(async () => {
-  const url_data = new URL('../assets/data.json', import.meta.url);
-  const response_data = await fetch(url_data.href)  // 确保路径正确
-  const data = await response_data.json()
-  someText.value = data.text
-
-  const url_faqs = new URL('../assets/faqs.json', import.meta.url);
-  const response_faqs = await fetch(url_faqs.href)  // 确保路径正确 
-  faqData.value = await response_faqs.json()
-
-  // const url_ans = new URL('../assets/answers.json', import.meta.url);
-  // const response_ans = await fetch(url_ans.href)  // 确保路径正确
-  // const answers = await response_ans.json()
-});
-
 // 当前步骤
 const currentStep = ref(1);
 
@@ -41,7 +20,7 @@ const currentStep = ref(1);
 const { scrollRef, scrollToBottom } = useScroll()
 
 
-// Conversation and PDF preview panel toggle control
+// Conversation panel toggle control
 let showTab = ref<string>("nav-tab-chat")
 let tabWidth = ref<string>("")
 // vue3-pdf-app UI configuration
@@ -160,7 +139,7 @@ if (!uuid || uuid === '0') {
     router.push({ name: 'Chat', params: { uuid } })
   }
 } else {
-  // Load current conversation messages
+  // 加载当前对话
   let messages = window.localStorage.getItem(uuid)
   if (messages) {
     messageList.value = JSON.parse(messages)
@@ -177,17 +156,6 @@ if (!uuid || uuid === '0') {
   scrollToBottom()
 }
 
-// function updateStep(newStep: number) {
-//   currentStep.value = newStep;
-//   sendStepMessage(`已进入第 ${newStep} 步`);
-// }
-
-// function nextStep() {
-//   if (currentStep.value < 4) {
-//     currentStep.value += 1;
-//     sendStepMessage(`已进入第 ${currentStep.value} 步`);
-//   }
-// }
 
 async function sendStepMessage(message: string) {
   // 这里你可以添加发送消息到聊天的逻辑
@@ -300,7 +268,6 @@ async function onConversation() {
   // Clear input box and disable button
   prompt.value = ''
   buttonDisabled.value = true
-  // fileUploadCard.value = false
 
   // Send message (for local display, not directly sent to GPT)
   messageList.value.push({
@@ -322,9 +289,6 @@ async function onConversation() {
 
   // Stream request to ChatGPT3.5
   try {
-    // if (fileContent.value) {
-    //   message += ', Uploaded file content: ' + fileContent.value
-    // }
 
     let data = {
       "model": "glm-4",
@@ -351,10 +315,6 @@ async function onConversation() {
     })
 
     console.log("response", response)
-
-    // if (!response.ok) {
-    //   throw new Error('Network response was not ok')
-    // }
 
 
     const reader = response.body?.getReader();
@@ -438,37 +398,10 @@ function handleDele(selectedUuid: string) {
 }
 </script>
 
+
 <template>
   <div id="layout" class="common-layout">
-    <!-- 侧边栏 -->
-    <div class="navigation navbar justify-content-center py-xl-4 py-md-3 py-0 px-3">
-      <a href="#" title="ChatGPT-UI" class="brand">
-        <svg class="logo" viewBox="0 0 128 128" width="24" height="24" data-v-c0161dce="">
-          <path fill="#42b883" d="M78.8,10L64,35.4L49.2,10H0l64,110l64-110C128,10,78.8,10,78.8,10z" data-v-c0161dce="">
-          </path>
-          <path fill="#35495e" d="M78.8,10L64,35.4L49.2,10H25.6L64,76l38.4-66H78.8z" data-v-c0161dce=""></path>
-        </svg>
-      </a>
-      <div class="nav flex-md-column nav-pills flex-grow-1" role="tablist" aria-orientation="vertical">
-        <a class="mb-xl-3 mb-md-2 nav-link active" data-toggle="pill" href="#" role="tab">
-          <i class="zmdi zmdi-comment-alt"></i> <!-- Chat -->
-        </a>
-        <a class="mb-xl-3 mb-md-2 nav-link  d-none d-sm-block flex-grow-1" data-toggle="pill" href="#" role="tab">
-          <i class="zmdi zmdi-layers"></i> <!-- Layers -->
-        </a>
-
-        <a class="mt-xl-3 mt-md-2 nav-link light-dark-toggle" href="#">
-          <i class="zmdi zmdi-brightness-2"></i> <!-- Light/Dark Mode -->
-          <input class="light-dark-btn" type="checkbox">
-        </a>
-        <a class="mt-xl-3 mt-md-2 nav-link d-none d-sm-block" href="#" role="tab">
-          <i class="zmdi zmdi-settings"></i> <!-- Settings -->
-        </a>
-      </div>
-      <button type="submit" class="btn sidebar-toggle-btn shadow-sm" @click="handleMenu">
-        <i class="zmdi zmdi-menu"></i> <!-- Menu -->
-      </button>
-    </div>
+   
     <!-- Sidebar -->
     <div class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth">
       <div class="tab-content">
@@ -536,14 +469,7 @@ function handleDele(selectedUuid: string) {
                       {{ item.send.messages[0].content }}
                       <div class="attachment"  @click="handleBackDoc">
                         <div class="media mt-2">
-                          <!-- <div class="avatar me-2"> -->
-                            <!-- <div class="avatar rounded no-image orange">
-                              <i class="zmdi zmdi-collection-pdf"></i>
-                            </div> -->
-                          <!-- </div> -->
                           <div class="media-body overflow-hidden">
-                            <!-- <h6 class="text-truncate mb-0">{{ item.send.messages[0].fileName }}</h6> -->
-                            <!-- <span class="file-size">{{ item.send.messages[0].fileSize }}</span> -->
                           </div>
                         </div>
                       </div>
