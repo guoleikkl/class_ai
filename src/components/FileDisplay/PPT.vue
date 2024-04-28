@@ -2,10 +2,15 @@
   <div class="common-layout">
     <el-main>ppt的页面</el-main>
   </div>
+  <el-button-group>
+    <el-button type="primary" @click="downVersion">上个版本</el-button>
+    <el-button type="primary">版本：{{ version }}/{{ urlList.length }}</el-button>
+    <el-button type="primary" @click="upVersion">下个版本</el-button>
+  </el-button-group>
   <div class="container">
     <div v-show="loading" class="well loading">正在加载中，请耐心等待...</div>
     <div v-show="!loading" class="well" ref="output"></div>
-  
+
   </div>
 </template>
 
@@ -24,6 +29,17 @@ export default {
       last: null,
       // 隐藏头部，当基于消息机制渲染，将隐藏
       hidden: false,
+
+      urlList: [
+        'http://web-guolei.oss-cn-beijing.aliyuncs.com/test01.pptx',
+        'http://web-guolei.oss-cn-beijing.aliyuncs.com/test02.pptx',
+      ],
+
+      // 当前版本
+      version: 1,
+
+      // 按钮状态
+      disabled: false,
 
     };
   },
@@ -61,7 +77,7 @@ export default {
       try {
         console.log("try")
         const response = await axios({
-          url: 'http://web-guolei.oss-cn-beijing.aliyuncs.com/test.pptx',
+          url: this.urlList[this.version - 1],
           method: 'GET',
           responseType: 'arraybuffer', // 重要：设置响应类型为arraybuffer
         });
@@ -77,7 +93,7 @@ export default {
     displayResult(buffer) {
       // 取得文件名
       // 暂时固定为test.pptx，之后可以通过参数传递
-      const  name  = 'test.pptx';
+      const name = 'test.pptx';
       console.log("name是", name);
       // 取得扩展名
       const extend = getExtend(name);
@@ -99,6 +115,26 @@ export default {
         render(buffer, extend, child).then(resolve).catch(reject)
       );
     },
+
+
+    // 版本切换
+    upVersion() {
+      if (this.version < this.urlList.length) {
+        this.version++
+        this.handleChange()
+      }
+      // this.version++
+    },
+    downVersion() {
+      if (this.version > 1) {
+        this.version--
+        this.handleChange()
+      }
+      // this.version--
+    },
+
+
+
   },
 };
 </script>
@@ -138,8 +174,8 @@ export default {
 
 .well {
   display: block;
-  background-color: #5e30a9;
-  border: 1px solid #f14242;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
   margin: 5px;
   width: calc(100% - 12px);
   height: calc(100vh - 73px);
@@ -158,7 +194,7 @@ export default {
 
 <style>
 .pptx-wrapper {
-  max-width: 1000px;
+  /* max-width: 1000px; */
   margin: 0 auto;
 }
 </style>

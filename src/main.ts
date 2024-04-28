@@ -6,6 +6,9 @@ import VMdPreview from '@kangc/v-md-editor/lib/preview'
 import '@kangc/v-md-editor/lib/style/preview.css'
 import githubTheme from '@kangc/v-md-editor/lib/theme/github.js'
 import '@kangc/v-md-editor/lib/theme/style/github.css'
+// import 'WordDisplay' from '@/components/FileDisplay/WordDisplay.vue'
+
+
 
 // vue-markdown highlightjs
 import hljs from 'highlight.js'
@@ -20,10 +23,13 @@ import 'element-plus/dist/index.css'
 import App from './App.vue'
 import router from './router'
 
+import WordDisplay from './components/FileDisplay/WordDisplay.vue'
+
 const app = createApp(App)
 app.use(ElementPlus)
 app.use(router)
 
 app.use(VMdPreview)
+app.component('WordDisplay', WordDisplay)
 
 app.mount('#app')

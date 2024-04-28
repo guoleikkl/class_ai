@@ -470,7 +470,7 @@ function handleDele(selectedUuid: string) {
                   <div class="message-row d-flex align-items-center justify-content-end">
                     <div class="message-content border p-3">
                       {{ item.send.messages[0].content }}
-                      <div class="attachment"  @click="handleBackDoc">
+                      <div class="attachment">
                         <div class="media mt-2">
                           <div class="media-body overflow-hidden">
                           </div>
@@ -526,14 +526,14 @@ function handleDele(selectedUuid: string) {
                 <form @submit.prevent="handleSubmit">
                   <div class="input-group align-items-center">
                     <input type="text" v-model="prompt" class="form-control border-0 pl-0"
-                      placeholder="Type your message...">
+                      placeholder="请输入你的问题">
                     <div class="input-group-append">
                       <span class="input-group-text border-0">
                       </span>
                     </div>
                     <div class="input-group-append">
                       <span class="input-group-text border-0 pr-0">
-                        <button type="submit" class="btn btn-primary" :disabled="buttonDisabled" @click="handleSubmit">
+                        <button type="submit" class="btn btn-primary btn-blue" :disabled="buttonDisabled" @click="handleSubmit">
                           <i class="zmdi zmdi-mail-send"></i>
                         </button>
                       </span>
@@ -574,6 +574,11 @@ function handleDele(selectedUuid: string) {
 .chat-layout {
   display: flex;
   height: 100vh;
+}
+.btn-blue {
+  background-color: #0000FF; /* 这是蓝色的十六进制代码 */
+  border-color: #0000FF;
+  color: #FFFFFF; /* 这是白色的十六进制代码，用于按钮的文本颜色 */
 }
 
 .chat-right {
