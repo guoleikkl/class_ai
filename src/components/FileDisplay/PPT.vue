@@ -46,14 +46,14 @@ export default {
   created() {
     // 允许使用预留的消息机制发送二进制数据，必须在url后添加?name=xxx.xxx&from=xxx
     const { from, name } = parse(location.search.substr(1));
-    console.log('created被触发')
-    console.log(from, name);
-    console.log(location.search)
+    // console.log('created被触发')
+    // console.log(from, name);
+    // console.log(location.search)
     if (from) {
-      console.log("from存在")
+      // console.log("from存在")
       this.handleChange({ target: { files: [new File([], name)] } });
       window.addEventListener("message", (event) => {
-        console.log("message事件触发")
+        // console.log("message事件触发")
         const { origin, data: blob } = event;
         if (origin === from && blob instanceof Blob) {
           // 构造响应，自动渲染
@@ -65,7 +65,7 @@ export default {
   },
   mounted() {
     // 页面加载后执行的代码
-    console.log('页面加载完毕！');
+    // console.log('页面加载完毕！');
 
     this.handleChange();
   },
@@ -75,7 +75,7 @@ export default {
     async handleChange(e) {
       this.loading = true;
       try {
-        console.log("try")
+        // console.log("try")
         const response = await axios({
           url: this.urlList[this.version - 1],
           method: 'GET',
@@ -94,16 +94,16 @@ export default {
       // 取得文件名
       // 暂时固定为test.pptx，之后可以通过参数传递
       const name = 'test.pptx';
-      console.log("name是", name);
+      // console.log("name是", name);
       // 取得扩展名
       const extend = getExtend(name);
-      console.log("extend是", extend);
+      // console.log("extend是", extend);
       // 输出目的地
       const { output } = this.$refs;
-      console.log("output是", output);
+      // console.log("output是", output);
       // 生成新的dom
       const node = document.createElement("div");
-      console.log("node是", node);
+      // console.log("node是", node);
       // 添加孩子，防止vue实例替换dom元素
       if (this.last) {
         output.removeChild(this.last.$el);

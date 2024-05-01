@@ -10,12 +10,12 @@ import LectureNote from '@/components/FileDisplay/LectureNote.vue'
 import LessonPlan from '@/components/FileDisplay/LessonPlan.vue'
 import PPT from '@/components/FileDisplay/PPT.vue'
 import Outline from '@/components/FileDisplay/Outline.vue'
-import StepIndicator from '../components/StepIndicator.vue'
+import Requirement from '@/components/FileDisplay/Requirement.vue'
+import StepIndicator from '../components/StepIndicator/StepIndicator.vue'
 import { el } from 'element-plus/es/locale/index.mjs'
 
 
-// 当前步骤
-const currentStep = ref(1);
+
 
 // 滚动到底部
 const { scrollRef, scrollToBottom } = useScroll()
@@ -24,36 +24,20 @@ const { scrollRef, scrollToBottom } = useScroll()
 // Conversation panel toggle control
 let showTab = ref<string>("nav-tab-chat")
 let tabWidth = ref<string>("")
-// vue3-pdf-app UI configuration
-let pdfFile = ref<string>("")
-const config = ref<{}>({
-  sidebar: true,
-  toolbar: {
-    toolbarViewerLeft: {
-      findbar: true,
-      previous: true,
-      next: true,
-      pageNumber: false,
-    },
-    toolbarViewerRight: {
-      presentationMode: true,
-      openFile: false,
-      print: false,
-      download: false,
-      viewBookmark: false,
-    },
-    toolbarViewerMiddle: {
-      zoomOut: true,
-      zoomIn: true,
-      scaleSelectContainer: true,
-    }
-  },
-})
+
 
 //页面切换
-let activePage = ref('课程介绍')
-const handlePageChange = (newPage: string) => {
-  activePage.value = newPage
+// let activePage = ref('课程介绍')
+// const handlePageChange = (newPage: string) => {
+//   activePage.value = newPage
+// }
+
+
+// 步骤切换
+const currentStep = ref(0);
+const handleStepChange = (newStep: number) => {
+  console.log('handleStepChange', newStep)
+  currentStep.value = newStep
 }
 
 // 输入框的消息
@@ -159,10 +143,9 @@ if (!uuid || uuid === '0') {
 
 
 async function sendStepMessage(message: string) {
+  console.log("sendStepMessage-------------------------------------")
   // 这里你可以添加发送消息到聊天的逻辑
-  // 例如：
-  // messageList.value.push({ content: message, sender: 'system' });
-  // scrollToBottom();
+
   // 创建消息对象，这里我们假设模型的名字是系统，因为这是一个内部生成的消息
   const messageObject = {
     send: {
@@ -250,10 +233,6 @@ function handleBackChat() {
   tabWidth.value = ''
 }
 
-// function handleBackDoc() {
-//   showTab.value = 'nav-tab-doc'
-//   tabWidth.value = 'width: 40%'
-// }
 
 // Submit message
 function handleSubmit() {
@@ -298,15 +277,15 @@ async function onConversation() {
       "stream": true
     }
 
-    console.log("data", data)
+    // console.log("data", data)
 
     let headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + import.meta.env.VITE_API_KEY,
     }
 
-    console.log("headers", headers)
-    console.log("import.meta.env.VITE_APP_URL", import.meta.env.VITE_APP_URL)
+    // console.log("headers", headers)
+    // console.log("import.meta.env.VITE_APP_URL", import.meta.env.VITE_APP_URL)
 
     // Send request
     let response = await fetch(import.meta.env.VITE_APP_URL, {
@@ -315,7 +294,7 @@ async function onConversation() {
       body: JSON.stringify(data)
     })
 
-    console.log("response", response)
+    // console.log("response", response)
 
 
     const reader = response.body?.getReader();
@@ -327,7 +306,7 @@ async function onConversation() {
       const { done, value } = await reader.read()
 
       if (done) {
-        console.log('Stream ended')
+        // console.log('Stream ended')
         result = false
 
         // Restore button state
@@ -346,14 +325,14 @@ async function onConversation() {
       chunkText = chunkText.replace(/data:/g, '')
       // chunkText = 'hellohello'
       let results = chunkText.split('\n\n').filter(Boolean)
-      console.log('chunkText', chunkText)
-      console.log('results', results)
+      // console.log('chunkText', chunkText)
+      // console.log('results', results)
       // Iterate through the array and process multiple chunks
       for (let i = 0; i < results.length; i++) {
         var chunk = results[i]
         if (chunk.indexOf('DONE') == -1) {
           var chunkData = JSON.parse(chunk)
-          console.log('chunkData', chunkData)
+          // console.log('chunkData', chunkData)
           if (chunkData.choices[0].delta.content) {
             if (!messageList.value[messageList.value.length - 1].receive) {
               // If it is the first result, set the state directly
@@ -457,7 +436,7 @@ function handleDele(selectedUuid: string) {
       <div class="chat-body">
         <!-- Chat Box Header -->
         <div class="chat-header border-bottom py-xl-4 py-md-3 py-2">
-          <StepIndicator @update:page="handlePageChange"></StepIndicator>
+          <StepIndicator @changeStep="handleStepChange" :currentStep="currentStep"></StepIndicator>
         </div>
         <!-- end Chat Box Header -->
         <div class="chat-content" id="scrollRef" ref="scrollRef">
@@ -465,6 +444,7 @@ function handleDele(selectedUuid: string) {
             <ul class="list-unstyled py-4" v-for="(item, index) of messageList">
               <!-- Right Message -->
               <li class="d-flex message right">
+
                 <div class="message-body">
                   <span class="date-time text-muted"></span>
                   <div class="message-row d-flex align-items-center justify-content-end">
@@ -487,7 +467,7 @@ function handleDele(selectedUuid: string) {
                   <img class="avatar sm rounded-circle" src="../assets/ai.png" alt="avatar">
                 </div>
                 <div class="message-body">
-                  <span class="date-time text-muted">{{ item.receive.model }}</span>
+                  <span class="date-time text-muted">教学助手</span>
                   <div class="message-row d-flex align-items-center">
                     <div class="message-content p-3">
                       <v-md-preview
@@ -549,19 +529,22 @@ function handleDele(selectedUuid: string) {
     </div>
 
     <div class="main px-xl-1 px-lg-1 px-1">
-      <div v-if="activePage === '课程介绍'">
+      <div v-if="currentStep ===0">
+        <Requirement></Requirement>
+      </div>
+      <div v-if="currentStep ===1">
         <CourseIntroduction></CourseIntroduction>
       </div>
-      <div v-else-if="activePage === '目录大纲'">
+      <div v-else-if="currentStep === 2">
         <Outline></Outline>
       </div>
-      <div v-else-if="activePage === '教案'">
+      <div v-else-if="currentStep === 3">
         <LessonPlan></LessonPlan>
       </div>
-      <div v-else-if="activePage === '讲义'">
+      <div v-else-if="currentStep === 4">
         <LectureNote></LectureNote>
       </div>
-      <div v-else-if="activePage === 'PPT'">
+      <div v-else-if="currentStep === 5">
         <PPT></PPT>
       </div>
     </div>

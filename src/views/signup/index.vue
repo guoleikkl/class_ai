@@ -23,7 +23,7 @@ function handleRegistration() {
   if (!email || email.value.trim() === '')
     return
 
-  console.log(firstname.value, lastname.value, email.value)
+  // console.log(firstname.value, lastname.value, email.value)
 
   let data = {
     "firstname": firstname.value.trim(),

@@ -10,7 +10,6 @@ VITE_APP_URL = 填写OpenAI的API地址或第三方封装的API,格式示例：h
 
 VITE_API_KEY= 填写OpenAI的ApiKey, 格式示例: sk-FihjnhGKO14eYLmPpV1234BlbkFJUq1lS0RNenkDsjgGLopx
 
-VITE_API_UPLOAD = 填写解析pdf文件的API地址，格式示例: http://domain.com/upload/pdf
 ```
 
 ## 项目初始化

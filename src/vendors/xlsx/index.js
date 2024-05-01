@@ -9,7 +9,7 @@ import { createApp, h } from "vue";
  */
 export default async function render(buffer, target) {
   const workbook = await new ExcelJS.Workbook().xlsx.load(buffer);
-  console.log(workbook, "workbook");
+  // console.log(workbook, "workbook");
   const app = createApp({
     render: () => h(),
   });
