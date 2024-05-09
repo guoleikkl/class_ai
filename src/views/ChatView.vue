@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, provide } from 'vue'
 import { useRoute } from 'vue-router'
 import { router } from '@/router'
 import { useScroll } from './hooks/useScroll'
@@ -13,12 +13,30 @@ import Outline from '@/components/FileDisplay/Outline.vue'
 import Requirement from '@/components/FileDisplay/Requirement.vue'
 import StepIndicator from '../components/StepIndicator/StepIndicator.vue'
 import { el } from 'element-plus/es/locale/index.mjs'
+import jsonData from '../assets/chatDemo.json'
+import { file } from 'jszip'
 
 
 
 
 // 滚动到底部
 const { scrollRef, scrollToBottom } = useScroll()
+
+
+// 临时
+// 用于记录chatDemo.json中的对话的步骤
+let chatDemoStep = 0
+
+// 记录当前文件列表
+let fileList = ref<[string[]]>([[]])
+let fileList1 = ref<string[]>([])
+
+// 注入fileList
+provide('fileList', fileList.value[0])
+
+provide('fileList1', fileList1.value)
+
+// let fileStep = ref(0)
 
 
 // Conversation panel toggle control
@@ -36,7 +54,7 @@ let tabWidth = ref<string>("")
 // 步骤切换
 const currentStep = ref(0);
 const handleStepChange = (newStep: number) => {
-  console.log('handleStepChange', newStep)
+  // console.log('handleStepChangedddddddddddddddddddd', newStep)
   currentStep.value = newStep
 }
 
@@ -142,8 +160,10 @@ if (!uuid || uuid === '0') {
 }
 
 
+
+// 用户发送消息
 async function sendStepMessage(message: string) {
-  console.log("sendStepMessage-------------------------------------")
+  // console.log("sendStepMessage-------------------------------------")
   // 这里你可以添加发送消息到聊天的逻辑
 
   // 创建消息对象，这里我们假设模型的名字是系统，因为这是一个内部生成的消息
@@ -239,11 +259,24 @@ function handleSubmit() {
   onConversation()
 }
 
+
+
 // 提交消息
 async function onConversation() {
-  let message = prompt.value
-  if (!message || message.trim() === '')
+  // console.log(jsonData.conversations)
+  let promptMessage = prompt.value
+  if (promptMessage.trim() === '') {
     return
+  }
+  // console.log('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq')
+  let message = jsonData.conversations[chatDemoStep].message
+  if (jsonData.conversations[chatDemoStep].next) {
+    handleStepChange(currentStep.value + 1)
+  }
+  chatDemoStep++
+
+  // if (!message || message.trim() === '')
+  //   return
 
   // Clear input box and disable button
   prompt.value = ''
@@ -266,92 +299,158 @@ async function onConversation() {
 
   scrollToBottom()
 
+  // console.log('1212121212')
 
-  // Stream request to ChatGPT3.5
-  try {
-
-    let data = {
-      "model": "glm-4",
-      "messages": [{ "role": "user", "content": message }],
-      "temperature": 0.7,
-      "stream": true
-    }
-
-    // console.log("data", data)
-
-    let headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + import.meta.env.VITE_API_KEY,
-    }
-
-    // console.log("headers", headers)
-    // console.log("import.meta.env.VITE_APP_URL", import.meta.env.VITE_APP_URL)
-
-    // Send request
-    let response = await fetch(import.meta.env.VITE_APP_URL, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(data)
-    })
-
-    // console.log("response", response)
-
-
-    const reader = response.body?.getReader();
-    // console.log("reader",reader)
-    const textDecoder = new TextDecoder()
-    let result = true
-    while (reader && result) {
-      // Get a chunk
-      const { done, value } = await reader.read()
-
-      if (done) {
-        // console.log('Stream ended')
-        result = false
-
-        // Restore button state
-        buttonDisabled.value = false
-        // fileContent.value = ''
-
-        // Save current messages
-        window.localStorage.setItem(uuid, JSON.stringify(messageList.value))
-        window.localStorage.setItem("chatStore", JSON.stringify(conversationList.value))
-        break
-      }
-
-
-      // Convert chunk string to array
-      let chunkText = textDecoder.decode(value)
-      chunkText = chunkText.replace(/data:/g, '')
-      // chunkText = 'hellohello'
-      let results = chunkText.split('\n\n').filter(Boolean)
-      // console.log('chunkText', chunkText)
-      // console.log('results', results)
-      // Iterate through the array and process multiple chunks
-      for (let i = 0; i < results.length; i++) {
-        var chunk = results[i]
-        if (chunk.indexOf('DONE') == -1) {
-          var chunkData = JSON.parse(chunk)
-          // console.log('chunkData', chunkData)
-          if (chunkData.choices[0].delta.content) {
-            if (!messageList.value[messageList.value.length - 1].receive) {
-              // If it is the first result, set the state directly
-              messageList.value[messageList.value.length - 1].receive = chunkData
-              messageList.value[messageList.value.length - 1].loading = false
-            } else {
-              const lastMessage = messageList.value[messageList.value.length - 1]?.receive;
-              if (lastMessage && lastMessage.choices[0].delta.content) {
-                lastMessage.choices[0].delta.content += chunkData.choices[0].delta.content;
-              }
-            }
-            scrollToBottom()
-          }
+  // 从json文件中获取AI对话数据
+  let data = {
+    "id": uuid,
+    "created": new Date().toLocaleString(),
+    "model": "glm-4",
+    "choices": [
+      {
+        "index": 0,
+        "delta": {
+          "role": "assistant",
+          "content": jsonData.conversations[chatDemoStep].message
         }
       }
-    }
-  } catch (e) {
-    console.log(e)
+    ]
   }
+
+  let ssdata = JSON.parse(JSON.stringify(data))
+  // console.log('ssdata', ssdata)
+
+  // console.log('fileListlengthhhhhhhhhhhh', fileList.value.length)
+  if (fileList.value.length < jsonData.conversations[chatDemoStep].step) {
+    // console.log("dd0000000000000000000000000000000000000000000000000000000000")
+    fileList.value.push([])
+    // fileList1.value = []
+    fileList1.value.pop()
+    fileList1.value.pop()
+    console.log("清空")
+  }
+
+  // console.log('fileList111111111111111111111111111111111111111111', fileList1.value)
+
+  // console.log('fileList', fileList.value)
+
+
+  setTimeout(() => {
+    console.log("yanshi")
+    fileList.value[jsonData.conversations[chatDemoStep].step - 1].push(jsonData.conversations[chatDemoStep].file)
+    fileList1.value.push(jsonData.conversations[chatDemoStep].file)
+
+    messageList.value[messageList.value.length - 1].receive = ssdata
+    messageList.value[messageList.value.length - 1].loading = false
+
+    chatDemoStep++
+
+    buttonDisabled.value = false
+    scrollToBottom()
+
+
+
+  }, 1500);
+
+
+
+
+
+
+  // let data = { "id": "8635231172645742753", "created": 1715072859, "model": "glm-4", "choices": [{ "index": 0, "delta": { "role": "assistant", "content": "谢谢" } }] }
+  // let ssdata = JSON.parse(JSON.stringify(data))
+  // console.log('ssdata', ssdata)
+
+  // Stream request to ChatGPT3.5
+  // try {
+
+  //   let data = {
+  //     "model": "glm-4",
+  //     "messages": [{ "role": "user", "content": message }],
+  //     "temperature": 0.7,
+  //     "stream": true
+  //   }
+
+  //   // console.log("data", data)
+
+  //   let headers = {
+  //     'Content-Type': 'application/json',
+  //     'Authorization': 'Bearer ' + import.meta.env.VITE_API_KEY,
+  //   }
+
+  //   // console.log("headers", headers)
+  //   // console.log("import.meta.env.VITE_APP_URL", import.meta.env.VITE_APP_URL)
+
+  //   // Send request
+  //   let response = await fetch(import.meta.env.VITE_APP_URL, {
+  //     method: 'POST',
+  //     headers: headers,
+  //     body: JSON.stringify(data)
+  //   })
+
+  //   // console.log("response", response)
+
+
+  //   const reader = response.body?.getReader();
+  //   // console.log("reader",reader)
+  //   const textDecoder = new TextDecoder()
+  //   let result = true
+  //   console.log('messageList111', messageList)
+  //   while (reader && result) {
+  //     // Get a chunk
+  //     const { done, value } = await reader.read()
+
+  //     if (done) {
+  //       // console.log('Stream ended')
+  //       result = false
+
+  //       // Restore button state
+  //       buttonDisabled.value = false
+  //       // fileContent.value = ''
+
+  //       // Save current messages
+  //       window.localStorage.setItem(uuid, JSON.stringify(messageList.value))
+  //       window.localStorage.setItem("chatStore", JSON.stringify(conversationList.value))
+  //       break
+  //     }
+
+
+  //     // Convert chunk string to array
+  //     let chunkText = textDecoder.decode(value)
+  //     chunkText = chunkText.replace(/data:/g, '')
+  //     // chunkText = 'hellohello'
+  //     let results = chunkText.split('\n\n').filter(Boolean)
+  //     // console.log('chunkText', chunkText)
+  //     // console.log('results', results)
+  //     // Iterate through the array and process multiple chunks
+  //     for (let i = 0; i < results.length; i++) {
+  //       var chunk = results[i]
+  //       if (chunk.indexOf('DONE') == -1) {
+  //         var chunkData = JSON.parse(chunk)
+  //         console.log('chunk')
+  //         console.log('chunkData', chunkData)
+  //         if (chunkData.choices[0].delta.content) {
+  //           if (!messageList.value[messageList.value.length - 1].receive) {
+  //             // If it is the first result, set the state directly
+  //             messageList.value[messageList.value.length - 1].receive = chunkData
+  //             // messageList.value[messageList.value.length - 1].receive = ""
+  //             messageList.value[messageList.value.length - 1].loading = false
+  //           } else {
+  //             // console.log('dddddd')
+  //             const lastMessage = messageList.value[messageList.value.length - 1]?.receive;
+  //             if (lastMessage && lastMessage.choices[0].delta.content) {
+  //               lastMessage.choices[0].delta.content += chunkData.choices[0].delta.content;
+  //             }
+  //           }
+  //           scrollToBottom()
+  //         }
+  //       }
+  //     }
+  //   }
+  //   console.log('messageList2222', messageList)
+  // } catch (e) {
+  //   console.log(e)
+  // }
 }
 
 // 删除会话
@@ -376,15 +475,18 @@ function handleDele(selectedUuid: string) {
     }
   }
 }
+
+
 </script>
+
 
 
 <template>
   <div id="layout" class="common-layout">
-   
+
     <!-- Sidebar -->
     <el-aside class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth">
-    <!-- <div class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth"> -->
+      <!-- <div class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth"> -->
       <div class="tab-content">
         <!-- Chat Records -->
         <div class="tab-pane fade active show" id="nav-tab-chat" role="tabpanel" v-if="showTab === 'nav-tab-chat'">
@@ -412,8 +514,8 @@ function handleDele(selectedUuid: string) {
                     <div class="avatar me-3">
                       <span class="status rounded-circle"></span>
                       <img class="avatar rounded-circle"
-                        :style="[item.active ? 'filter:grayscale(0)' : 'filter:grayscale(1)']"
-                        src="../assets/ai.png" alt="avatar">
+                        :style="[item.active ? 'filter:grayscale(0)' : 'filter:grayscale(1)']" src="../assets/ai.png"
+                        alt="avatar">
                     </div>
                     <div class="media-body overflow-hidden">
                       <div class="d-flex align-items-center mb-1">
@@ -430,7 +532,7 @@ function handleDele(selectedUuid: string) {
         </div>
         <!-- end Chat Records -->
       </div>
-    <!-- </div> -->
+      <!-- </div> -->
     </el-aside>
     <div class="main px-xl-5 px-lg-4 px-3">
       <div class="chat-body">
@@ -505,15 +607,15 @@ function handleDele(selectedUuid: string) {
               <div class="col-12">
                 <form @submit.prevent="handleSubmit">
                   <div class="input-group align-items-center">
-                    <input type="text" v-model="prompt" class="form-control border-0 pl-0"
-                      placeholder="请输入你的问题">
+                    <input type="text" v-model="prompt" class="form-control border-0 pl-0" placeholder="请输入你的问题">
                     <div class="input-group-append">
                       <span class="input-group-text border-0">
                       </span>
                     </div>
                     <div class="input-group-append">
                       <span class="input-group-text border-0 pr-0">
-                        <button type="submit" class="btn btn-primary btn-blue" :disabled="buttonDisabled" @click="handleSubmit">
+                        <button type="submit" class="btn btn-primary btn-blue" :disabled="buttonDisabled"
+                          @click="handleSubmit">
                           <i class="zmdi zmdi-mail-send"></i>
                         </button>
                       </span>
@@ -529,10 +631,10 @@ function handleDele(selectedUuid: string) {
     </div>
 
     <div class="main px-xl-1 px-lg-1 px-1">
-      <div v-if="currentStep ===0">
+      <div v-if="currentStep === 0">
         <Requirement></Requirement>
       </div>
-      <div v-if="currentStep ===1">
+      <div v-if="currentStep === 1">
         <CourseIntroduction></CourseIntroduction>
       </div>
       <div v-else-if="currentStep === 2">
@@ -558,10 +660,13 @@ function handleDele(selectedUuid: string) {
   display: flex;
   height: 100vh;
 }
+
 .btn-blue {
-  background-color: #0000FF; /* 这是蓝色的十六进制代码 */
+  background-color: #0000FF;
+  /* 这是蓝色的十六进制代码 */
   border-color: #0000FF;
-  color: #FFFFFF; /* 这是白色的十六进制代码，用于按钮的文本颜色 */
+  color: #FFFFFF;
+  /* 这是白色的十六进制代码，用于按钮的文本颜色 */
 }
 
 .chat-right {

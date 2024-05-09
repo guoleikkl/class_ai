@@ -32,7 +32,7 @@ export default {
 
       urlList: [
         'http://web-guolei.oss-cn-beijing.aliyuncs.com/test01.pptx',
-        'http://web-guolei.oss-cn-beijing.aliyuncs.com/test02.pptx',
+        // 'http://web-guolei.oss-cn-beijing.aliyuncs.com/test02.pptx',
       ],
 
       // 当前版本

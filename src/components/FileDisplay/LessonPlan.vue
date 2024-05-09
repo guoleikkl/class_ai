@@ -2,6 +2,12 @@
   <div class="common-layout">
     <el-main>教案</el-main>
   </div>
-  <WordDisplay/>
+
+  <WordDisplay />
 </template>
 
+<script lang="ts" setup>
+
+
+
+</script>

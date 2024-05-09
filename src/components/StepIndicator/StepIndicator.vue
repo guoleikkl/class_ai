@@ -11,7 +11,8 @@
 
 <script lang="ts" setup>
 import { useFormLabelWidth } from 'element-plus/es/components/form/src/utils.mjs';
-import { ref, withDefaults, defineProps, defineEmits } from 'vue'
+import { watch } from 'fs';
+import { ref, withDefaults, defineProps, defineEmits, watchEffect } from 'vue'
 
 
 const props = defineProps({
@@ -62,29 +63,34 @@ const options = [
   }
 ]
 
-const stepLimit = ref(0)
 
 const step = ref(options[props.currentStep].value)
+
+// 手动选择之前的步骤
 const updatePage = (newval: any) => {
-
   emit('changeStep', options.findIndex((item) => item.value === newval))
-
 }
 
+// 点击下一步
 const nextStep = () => {
-  // if (stepLimit.value < options.length - 1) {
-  //   stepLimit.value++
-  //   step.value = options[stepLimit.value]
-  // }
-  if (stepLimit.value < options.length - 1) {
-    stepLimit.value++
-    options[stepLimit.value].disabled = false
-    console.log('options', options)
-    step.value = options[stepLimit.value].value;
-    console.log('step', step)
-    emit('changeStep', stepLimit.value)
+  if (props.currentStep < options.length - 1) {
+
+    options[props.currentStep + 1].disabled = false
+    step.value = options[props.currentStep + 1].value;
+    emit('changeStep', props.currentStep + 1)
   }
 }
+
+watchEffect(() => {
+  // console.log('props.currentStep', props.currentStep)
+  if (props.currentStep < options.length) {
+    
+
+    options[props.currentStep].disabled = false
+    step.value = options[props.currentStep].value;
+    // emit('changeStep', props.currentStep + 1)
+  }
+})
 
 
 </script>
