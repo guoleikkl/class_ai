@@ -2,119 +2,119 @@
     "conversations": [
         {
             "speaker": "User",
-            "message": "提出需求1",
+            "message": "我要给北京101中学的三年级学生讲人工智能中的机器学习部分。本节课主要包括以下内容：了解机器学习的发展历程，认识机器学习的工作原理，了解机器学习的三种不同的学习方法。请你根据学生的认知能力等级设计出一个课程介绍，包含课程的主要内容、课程目标和学习本课程的要求。",
             "next": true,
             "file": "",
             "step": 0
         },
         {
             "speaker": "AI",
-            "message": "回答课程介绍1",
+            "message": "好的，我会根据您的需求，生成相应课程介绍，难度适用于北京101中学的三年级学生，内容为机器学习。具体课程介绍内容如右侧展示。",
             "next": false,
-            "file": "http://web-guolei.oss-cn-beijing.aliyuncs.com/%E8%AF%BE%E7%A8%8B%E4%BB%8B%E7%BB%8D1.docx",
+            "file": "https://personalized-edu-1322695558.cos.ap-beijing.myqcloud.com/demo/%E8%AF%BE%E7%A8%8B%E4%BB%8B%E7%BB%8DV1.docx",
             "step": 1
         },
         {
             "speaker": "User",
-            "message": "课程介绍2",
+            "message": "请在以上课程介绍内容的基础上，添加教学时间安排和教学方法。",
             "next": false,
             "file": "",
             "step": 1
         },
         {
             "speaker": "AI",
-            "message": "回答课程介绍2",
+            "message": "了解您的需求，我会在上述课程介绍基础上进行改进。改进后内容如右展示。",
             "next": false,
-            "file": "http://web-guolei.oss-cn-beijing.aliyuncs.com/%E8%AF%BE%E7%A8%8B%E4%BB%8B%E7%BB%8D2.docx",
+            "file": "https://personalized-edu-1322695558.cos.ap-beijing.myqcloud.com/demo/%E8%AF%BE%E7%A8%8B%E4%BB%8B%E7%BB%8DV2.docx",
             "step": 1
         },
         {
             "speaker": "User",
-            "message": "课程介绍3",
+            "message": "请你根据上面修正过的课程介绍，生成本课程相应的目录，主要包括知识点、重点、难点和教学要求。",
             "next": true,
             "file": "",
             "step": 1
         },
         {
             "speaker": "AI",
-            "message": "回答目录大纲1",
+            "message": "好的，我会根据您的需求，生成相应的目录。具体目录内容如下：",
             "next": false,
-            "file": "http://web-guolei.oss-cn-beijing.aliyuncs.com/%E7%9B%AE%E5%BD%95%E5%A4%A7%E7%BA%B21.docx",
+            "file": "https://personalized-edu-1322695558.cos.ap-beijing.myqcloud.com/demo/%E7%9B%AE%E5%BD%95V1.docx",
             "step": 2
         },
         {
             "speaker": "User",
-            "message": "目录大纲2",
+            "message": "目前目录的教学要求部分只包含对知识的要求，请添加对学生的能力要求和品质要求。",
             "next": false,
             "file": "",
             "step": 2
         },
         {
             "speaker": "AI",
-            "message": "回答目录大纲2",
+            "message": "了解您的需求，我会在上述目录基础上进行改进。改进后内容如下：",
             "next": false,
-            "file": "http://web-guolei.oss-cn-beijing.aliyuncs.com/%E7%9B%AE%E5%BD%95%E5%A4%A7%E7%BA%B22.docx",
+            "file": "https://personalized-edu-1322695558.cos.ap-beijing.myqcloud.com/demo/%E7%9B%AE%E5%BD%95V2.docx",
             "step": 2
         },
         {
             "speaker": "User",
-            "message": "目录大纲3",
+            "message": "我要给北京101中学的三年级学生讲人工智能，第1节课的内容是机器学习。我想从三个方面去讲解，分别是：了解机器学习的发展历程，认识机器学习的工作原理，了解机器学习的三种不同的学习方法。请你设计教案，包含课程的基本信息，教学准备，教学设计。",
             "next": true,
             "file": "",
             "step": 2
         },
         {
             "speaker": "AI",
-            "message": "回答教案1",
+            "message": "好的，我会根据您的需求，生成相应教案，难度适用于北京101中学的三年级学生，内容为机器学习。具体教案内容如右展示。其中包括了基本信息、教学准备、教学设计三个部分，如果有需要更改的地方，请您提出，我会不断优化教案。",
             "next": false,
-            "file": "http://web-guolei.oss-cn-beijing.aliyuncs.com/%E6%95%99%E6%A1%881.docx",
+            "file": "https://personalized-edu-1322695558.cos.ap-beijing.myqcloud.com/demo/%E6%95%99%E6%A1%88v1.docx",
             "step": 3
         },
         {
             "speaker": "User",
-            "message": "教案2",
+            "message": "我觉得第4部分“教学安排”不够详细，并且需要侧重讲解“了解机器学习的发展历程”。",
             "next": false,
             "file": "",
             "step": 3
         },
         {
             "speaker": "AI",
-            "message": "回答教案2",
+            "message": "了解您的需求，我会在上述教案基础上进行改进。具体改进为：1. 细化“教学安排”部分，添加更加具体的分支。2. 增加“了解机器学习的发展历程”的时间，从原先的10分钟增加到15分钟，同时减少其余部分的时间分配，以保证总时间不变。以下是优化后的方案（修改部分已标红）：",
             "next": false,
-            "file": "http://web-guolei.oss-cn-beijing.aliyuncs.com/%E6%95%99%E6%A1%882.docx",
+            "file": "https://personalized-edu-1322695558.cos.ap-beijing.myqcloud.com/demo/%E6%95%99%E6%A1%88v2.docx",
             "step": 3
         },
         {
             "speaker": "User",
-            "message": "教案3",
+            "message": "我要给北京101中学的三年级学生讲人工智能，第1节课的内容是机器学习。请根据教案的课程相关内容生成相应的讲义，要求是word形式。",
             "next": true,
             "file": "",
             "step": 3
         },
         {
             "speaker": "AI",
-            "message": "回答讲义1",
+            "message": "V1",
             "next": false,
-            "file": "http://web-guolei.oss-cn-beijing.aliyuncs.com/%E8%AE%B2%E4%B9%891.docx",
+            "file": "https://personalized-edu-1322695558.cos.ap-beijing.myqcloud.com/demo/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%AE%B2%E4%B9%89v1.docx",
             "step": 4
         },
         {
             "speaker": "User",
-            "message": "讲义2",
+            "message": "请相对简括机器学习的发展史，并且严格根据教案的内容生成相应的课程讲义",
             "next": false,
             "file": "",
             "step": 4
         },
         {
             "speaker": "AI",
-            "message": "回答讲义2",
+            "message": "V2",
             "next": false,
-            "file": "http://web-guolei.oss-cn-beijing.aliyuncs.com/%E8%AE%B2%E4%B9%892.docx",
+            "file": "https://personalized-edu-1322695558.cos.ap-beijing.myqcloud.com/demo/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%AE%B2%E4%B9%89v2.docx",
             "step": 4
         },
         {
             "speaker": "User",
-            "message": "讲义3",
+            "message": "我要给北京101中学的三年级学生讲人工智能，第1节课的内容是机器学习。请根据课程讲义生成相应的PPT。",
             "next": true,
             "file": "",
             "step": 4
@@ -123,7 +123,7 @@
             "speaker": "AI",
             "message": "回答PPT1",
             "next": false,
-            "file": "http://web-guolei.oss-cn-beijing.aliyuncs.com/test01.pptx",
+            "file": "https://personalized-edu-1322695558.cos.ap-beijing.myqcloud.com/demo/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0PPT.pptx",
             "step": 5
         },
         {

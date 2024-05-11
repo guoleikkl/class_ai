@@ -1,23 +1,20 @@
 <template>
-  <div class="common-layout">
-    <el-main>ppt的页面</el-main>
-  </div>
   <el-button-group>
     <el-button type="primary" @click="downVersion">上个版本</el-button>
-    <el-button type="primary">版本：{{ version }}/{{ urlList.length }}</el-button>
+    <el-button type="primary">版本：{{ version }}/{{ fileList5.length }}</el-button>
     <el-button type="primary" @click="upVersion">下个版本</el-button>
   </el-button-group>
   <div class="container">
-    <div v-show="loading" class="well loading">正在加载中，请耐心等待...</div>
+    <div v-show="loading" class="well loading">正在加载中，请等待...</div>
     <div v-show="!loading" class="well" ref="output"></div>
-
   </div>
 </template>
-
 <script>
+
 import { getExtend, readBuffer, render } from "@/components/FileDisplay/util";
 import { parse } from "qs";
 import axios from "axios";
+import { watchEffect } from "vue";
 
 export default {
   name: "PPT",
@@ -29,31 +26,27 @@ export default {
       last: null,
       // 隐藏头部，当基于消息机制渲染，将隐藏
       hidden: false,
-
-      urlList: [
-        'http://web-guolei.oss-cn-beijing.aliyuncs.com/test01.pptx',
-        // 'http://web-guolei.oss-cn-beijing.aliyuncs.com/test02.pptx',
-      ],
-
       // 当前版本
       version: 1,
-
       // 按钮状态
       disabled: false,
-
     };
   },
+
+  // 使用 props 接收从父组件传递的字符串数组
+  props: {
+    fileList5: {
+      type: Array,
+      required: true,
+    },
+  },
+
   created() {
     // 允许使用预留的消息机制发送二进制数据，必须在url后添加?name=xxx.xxx&from=xxx
     const { from, name } = parse(location.search.substr(1));
-    // console.log('created被触发')
-    // console.log(from, name);
-    // console.log(location.search)
     if (from) {
-      // console.log("from存在")
       this.handleChange({ target: { files: [new File([], name)] } });
       window.addEventListener("message", (event) => {
-        // console.log("message事件触发")
         const { origin, data: blob } = event;
         if (origin === from && blob instanceof Blob) {
           // 构造响应，自动渲染
@@ -63,81 +56,94 @@ export default {
       });
     }
   },
+
   mounted() {
     // 页面加载后执行的代码
-    // console.log('页面加载完毕！');
-
+    if (this.fileList5.length === 0) {
+      this.loading = false;
+      return;
+    }
     this.handleChange();
   },
 
-  methods: {
-
-    async handleChange(e) {
-      this.loading = true;
-      try {
-        // console.log("try")
-        const response = await axios({
-          url: this.urlList[this.version - 1],
-          method: 'GET',
-          responseType: 'arraybuffer', // 重要：设置响应类型为arraybuffer
-        });
-        const arrayBuffer = response.data;
-        this.loading = false;
-        this.last = await this.displayResult(arrayBuffer);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        this.loading = false;
-      }
+  // 添加监听器
+  watch: {
+    fileList5: {
+      handler: function (val, oldVal) {
+        this.handleChange();
+      },
+      deep: true,
     },
-    displayResult(buffer) {
-      // 取得文件名
-      // 暂时固定为test.pptx，之后可以通过参数传递
-      const name = 'test.pptx';
-      // console.log("name是", name);
-      // 取得扩展名
-      const extend = getExtend(name);
-      // console.log("extend是", extend);
-      // 输出目的地
-      const { output } = this.$refs;
-      // console.log("output是", output);
-      // 生成新的dom
-      const node = document.createElement("div");
-      // console.log("node是", node);
-      // 添加孩子，防止vue实例替换dom元素
-      if (this.last) {
-        output.removeChild(this.last.$el);
-        this.last.$destroy();
-      }
-      const child = output.appendChild(node);
-      // 调用渲染方法进行渲染
-      return new Promise((resolve, reject) =>
-        render(buffer, extend, child).then(resolve).catch(reject)
-      );
-    },
-
-
-    // 版本切换
-    upVersion() {
-      if (this.version < this.urlList.length) {
-        this.version++
-        this.handleChange()
-      }
-      // this.version++
-    },
-    downVersion() {
-      if (this.version > 1) {
-        this.version--
-        this.handleChange()
-      }
-      // this.version--
-    },
-
-
-
   },
+
+
+methods: {
+    async handleChange(e) {
+    this.loading = true;
+    try {
+      const response = await axios({
+        url: this.fileList5[this.version - 1],
+        method: 'GET',
+        responseType: 'arraybuffer', // 重要：设置响应类型为arraybuffer
+      });
+      const arrayBuffer = response.data;
+      this.loading = false;
+      this.last = await this.displayResult(arrayBuffer);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      this.loading = false;
+    }
+  },
+
+  displayResult(buffer) {
+    // 取得文件名
+    // 暂时固定为test.pptx，之后可以通过参数传递
+    const name = 'test.pptx';
+    // 取得扩展名
+    const extend = getExtend(name);
+    // 输出目的地
+    const { output } = this.$refs;
+    // 生成新的dom
+    const node = document.createElement("div");
+    // 添加孩子，防止vue实例替换dom元素
+    if (this.last) {
+      output.removeChild(this.last.$el);
+      this.last.$destroy();
+    }
+    const child = output.appendChild(node);
+    // 调用渲染方法进行渲染
+    return new Promise((resolve, reject) =>
+      render(buffer, extend, child).then(resolve).catch(reject)
+    );
+  },
+
+  // 版本切换
+  upVersion() {
+    if (this.version < this.fileList5.length) {
+      this.version++
+      this.handleChange()
+    }
+    // this.version++
+  },
+
+  downVersion() {
+    if (this.version > 1) {
+      this.version--
+      this.handleChange()
+    }
+    // this.version--
+  },
+
+
+
+
+},
 };
+
 </script>
+
+
 
 <style scoped>
 .banner {

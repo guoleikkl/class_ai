@@ -11,7 +11,6 @@ import $ from "jquery";
  * @param {Element|String} [thumbElement]
  */
 const renderPptx = (pptx, resultElement, thumbElement) => {
-  console.log("pptx中的index的renderPptx被执行", pptx, resultElement, thumbElement)
   const $result = $(resultElement);
   const $wrapper = $('<div class="pptx-wrapper"></div>');
   $result.html("");

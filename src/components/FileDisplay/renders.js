@@ -99,7 +99,6 @@ const handlers = [
 
 // 匹配
 export default handlers.reduce((result, { accepts, handler }) => {
-  // console.log('handlers.reduce执行', accepts, handler)
   accepts.forEach((type) => (result[type] = handler));
   return result;
 }, {});

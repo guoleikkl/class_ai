@@ -28,15 +28,20 @@ const { scrollRef, scrollToBottom } = useScroll()
 let chatDemoStep = 0
 
 // 记录当前文件列表
-let fileList = ref<[string[]]>([[]])
+// let fileList = ref<[string[]]>([[]])
 let fileList1 = ref<string[]>([])
+let fileList2 = ref<string[]>([])
+let fileList3 = ref<string[]>([])
+let fileList4 = ref<string[]>([])
+let fileList5 = ref<string[]>([])
 
 // 注入fileList
-provide('fileList', fileList.value[0])
+// provide('fileList1', fileList1.value)
+// provide('fileList2', fileList2.value)
+// provide('fileList3', fileList3.value)
+// provide('fileList4', fileList4.value)
+// provide('fileList5', fileList5.value)
 
-provide('fileList1', fileList1.value)
-
-// let fileStep = ref(0)
 
 
 // Conversation panel toggle control
@@ -44,17 +49,10 @@ let showTab = ref<string>("nav-tab-chat")
 let tabWidth = ref<string>("")
 
 
-//页面切换
-// let activePage = ref('课程介绍')
-// const handlePageChange = (newPage: string) => {
-//   activePage.value = newPage
-// }
-
 
 // 步骤切换
 const currentStep = ref(0);
 const handleStepChange = (newStep: number) => {
-  // console.log('handleStepChangedddddddddddddddddddd', newStep)
   currentStep.value = newStep
 }
 
@@ -160,7 +158,6 @@ if (!uuid || uuid === '0') {
 }
 
 
-
 // 用户发送消息
 async function sendStepMessage(message: string) {
   // console.log("sendStepMessage-------------------------------------")
@@ -263,20 +260,17 @@ function handleSubmit() {
 
 // 提交消息
 async function onConversation() {
-  // console.log(jsonData.conversations)
   let promptMessage = prompt.value
   if (promptMessage.trim() === '') {
     return
   }
-  // console.log('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq')
+
   let message = jsonData.conversations[chatDemoStep].message
   if (jsonData.conversations[chatDemoStep].next) {
     handleStepChange(currentStep.value + 1)
   }
   chatDemoStep++
 
-  // if (!message || message.trim() === '')
-  //   return
 
   // Clear input box and disable button
   prompt.value = ''
@@ -299,7 +293,7 @@ async function onConversation() {
 
   scrollToBottom()
 
-  // console.log('1212121212')
+
 
   // 从json文件中获取AI对话数据
   let data = {
@@ -318,27 +312,24 @@ async function onConversation() {
   }
 
   let ssdata = JSON.parse(JSON.stringify(data))
-  // console.log('ssdata', ssdata)
-
-  // console.log('fileListlengthhhhhhhhhhhh', fileList.value.length)
-  if (fileList.value.length < jsonData.conversations[chatDemoStep].step) {
-    // console.log("dd0000000000000000000000000000000000000000000000000000000000")
-    fileList.value.push([])
-    // fileList1.value = []
-    fileList1.value.pop()
-    fileList1.value.pop()
-    console.log("清空")
-  }
-
-  // console.log('fileList111111111111111111111111111111111111111111', fileList1.value)
-
-  // console.log('fileList', fileList.value)
-
 
   setTimeout(() => {
-    console.log("yanshi")
-    fileList.value[jsonData.conversations[chatDemoStep].step - 1].push(jsonData.conversations[chatDemoStep].file)
-    fileList1.value.push(jsonData.conversations[chatDemoStep].file)
+
+    if (jsonData.conversations[chatDemoStep].step === 1) {
+      fileList1.value.push(jsonData.conversations[chatDemoStep].file)
+    }
+    else if (jsonData.conversations[chatDemoStep].step === 2) {
+      fileList2.value.push(jsonData.conversations[chatDemoStep].file)
+    }
+    else if (jsonData.conversations[chatDemoStep].step === 3) {
+      fileList3.value.push(jsonData.conversations[chatDemoStep].file)
+    }
+    else if (jsonData.conversations[chatDemoStep].step === 4) {
+      fileList4.value.push(jsonData.conversations[chatDemoStep].file)
+    }
+    else if (jsonData.conversations[chatDemoStep].step === 5) {
+      fileList5.value.push(jsonData.conversations[chatDemoStep].file)
+    }
 
     messageList.value[messageList.value.length - 1].receive = ssdata
     messageList.value[messageList.value.length - 1].loading = false
@@ -635,19 +626,19 @@ function handleDele(selectedUuid: string) {
         <Requirement></Requirement>
       </div>
       <div v-if="currentStep === 1">
-        <CourseIntroduction></CourseIntroduction>
+        <CourseIntroduction :fileList1="fileList1"></CourseIntroduction>
       </div>
       <div v-else-if="currentStep === 2">
-        <Outline></Outline>
+        <Outline :fileList2="fileList2"></Outline>
       </div>
       <div v-else-if="currentStep === 3">
-        <LessonPlan></LessonPlan>
+        <LessonPlan :fileList3="fileList3"></LessonPlan>
       </div>
       <div v-else-if="currentStep === 4">
-        <LectureNote></LectureNote>
+        <LectureNote :fileList4="fileList4"></LectureNote>
       </div>
       <div v-else-if="currentStep === 5">
-        <PPT></PPT>
+        <PPT :fileList5="fileList5"></PPT>
       </div>
     </div>
     <!-- 后续页面内容可按照实际需求自行添加 -->

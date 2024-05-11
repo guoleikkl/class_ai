@@ -82,7 +82,6 @@ const nextStep = () => {
 }
 
 watchEffect(() => {
-  // console.log('props.currentStep', props.currentStep)
   if (props.currentStep < options.length) {
     
 

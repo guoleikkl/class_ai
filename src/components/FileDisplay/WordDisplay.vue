@@ -3,26 +3,26 @@
 import VueOfficeDocx from '@vue-office/docx'
 //引入相关样式
 import '@vue-office/docx/lib/index.css'
+import { sr } from 'element-plus/es/locale/index.mjs';
 import { ref, withDefaults, defineProps, defineEmits, inject, watch, watchEffect } from 'vue'
 
-const srcList = inject('fileList1')
 
-// console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', srcList)
-
+const props = defineProps<{
+    srcList: string[]
+}>()
 
 
 const version = ref(0)
-// console.log('version', version.value)
-const maxVersion = ref(srcList.length - 1)
-// console.log('maxVersion', maxVersion.value)
-const docx = ref(srcList[version.value])
 
-// console.log('bbbbbbbb', docx.value)
+const maxVersion = ref(props.srcList.length - 1)
+let docx = ref(props.srcList[version.value])
+
 
 
 // // 版本切换
 function upVersion() {
     if (version.value < maxVersion.value) {
+
         version.value++
         changeDocx()
     }
@@ -30,8 +30,11 @@ function upVersion() {
 }
 
 function downVersion() {
+
     if (version.value > 0) {
-        version.value--
+        
+        version.value = version.value - 1
+
         changeDocx()
     }
     // this.version--
@@ -39,32 +42,42 @@ function downVersion() {
 
 // 更换文档
 function changeDocx() {
-    // 后面可根据后端传回的数据进行更换
-    docx.value = srcList[version.value]
-    // this.$refs.vueOfficeDocx.reload()
+    docx.value = props.srcList[version.value]
 }
 
 
 function renderedHandler() {
-    console.log("渲染完成")
+
+    console.log("渲染完成", props.srcList)
 }
 function errorHandler() {
-    console.log("渲染失败")
+    console.log("渲染失败", props.srcList)
 }
 
-watch(srcList, async (newQuestion, oldQuestion) => {
-    // console.log("dddddddddfdfffffffffffffffffffffffffff", srcList)
-    maxVersion.value = srcList.length - 1
-    // console.log("maxVersion", maxVersion.value)
-    version.value = maxVersion.value
-    // console.log("version", version.value)
-    docx.value = srcList[version.value]
-    // console.log("docx", docx.value)
 
-})
+// watchEffect 用于在初始化或其他依赖改变时同步数据
+// watchEffect(() => {
+//     if(props.srcList === undefined) {
+//         return
+//     }
+//     maxVersion.value = props.srcList.length - 1
+//     version.value = maxVersion.value
+//     docx.value = props.srcList[version.value]
+
+    
+// })
+
+watch(() => props.srcList, (newSrcList, oldSrcList) => {
+    maxVersion.value = newSrcList.length - 1;  // 更新最大版本号
+    version.value = maxVersion.value;          // 重置到最新版本
+    docx.value = newSrcList[version.value];    // 更新文档来源
+}, {
+    deep: true  // 如果srcList是一个复杂对象或数组，你可能需要deep watch
+});
 
 
 </script>
+
 
 <template>
     <el-button-group>
@@ -73,5 +86,4 @@ watch(srcList, async (newQuestion, oldQuestion) => {
         <el-button type="primary" @click="upVersion">下个版本</el-button>
     </el-button-group>
     <vue-office-docx :src="docx" style="height: 100vh;" @rendered="renderedHandler" @error="errorHandler" />
-
 </template>
