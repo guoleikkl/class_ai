@@ -1,6 +1,6 @@
 <template>
 
-  <WordDisplay :srcList="fileList3"/>
+  <WordDisplay :srcList="fileList3" />
   <!-- <WordDisplay :urlList="props.fileList/> -->
 </template>
 
@@ -13,9 +13,4 @@ import { watch } from 'vue'
 const props = defineProps<{
 fileList3: string[]
 }>()
-
-
-
-
-
 </script>

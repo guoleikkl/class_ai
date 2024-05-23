@@ -10,9 +10,12 @@
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false"
   },
   "dependencies": {
-    "@kangc/v-md-editor": "^2.3.17",
+    "@element-plus/icons-vue": "^2.3.1",
+    "@kangc/v-md-editor": "^2.3.18",
     "@vitejs/plugin-vue": "^4.3.4",
     "@vue-office/docx": "^1.6.0",
+    "@vue-office/excel": "^1.7.8",
+    "@vue-office/pdf": "^2.0.2",
     "axios": "^0.25.0",
     "core-js": "^3.6.5",
     "cos-nodejs-sdk-v5": "^2.13.5",

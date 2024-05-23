@@ -28,8 +28,15 @@ export async function readText(buffer) {
 }
 
 export function getExtend(name) {
+  if(!name) return ''
   const dot = name.lastIndexOf('.')
   return name.substr(dot + 1);
+}
+
+export function getFileName(name) {
+  if(!name) return ''
+  const dot = name.lastIndexOf('.')
+  return name.substr(0, dot);
 }
 
 export async function render(buffer, type, target) {

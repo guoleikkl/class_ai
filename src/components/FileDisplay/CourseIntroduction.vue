@@ -1,5 +1,5 @@
 <template>
-    <WordDisplay :srcList="fileList1"/>
+    <WordDisplay :srcList="fileList1" />
     <!-- <WordDisplay :urlList="props.fileList/> -->
 </template>
 

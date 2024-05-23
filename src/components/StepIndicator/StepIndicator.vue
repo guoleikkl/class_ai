@@ -1,19 +1,16 @@
 <template>
-  <div>
+  <div style="width: 100%;">
     <!-- <el-segmented v-model="options[currentStep]" :options="options" block @change="updatePage" /> -->
-    <el-segmented v-model="step" :options="options" @change="updatePage" />
-  </div>
-  <div>
-    <el-button type="primary" @click="nextStep">下一步</el-button>
+    <el-segmented v-model="step" :options="options" @change="updatePage" style="width: 90%; height: 50px;" />
+    <el-button type="primary" @click="nextStep" :icon="Right" style="height: 45px;"></el-button>
   </div>
 </template>
 
 
 <script lang="ts" setup>
 import { useFormLabelWidth } from 'element-plus/es/components/form/src/utils.mjs';
-import { watch } from 'fs';
 import { ref, withDefaults, defineProps, defineEmits, watchEffect } from 'vue'
-
+import { Right, Download } from '@element-plus/icons-vue'
 
 const props = defineProps({
   currentStep: {

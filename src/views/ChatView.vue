@@ -13,9 +13,40 @@ import Outline from '@/components/FileDisplay/Outline.vue'
 import Requirement from '@/components/FileDisplay/Requirement.vue'
 import StepIndicator from '../components/StepIndicator/StepIndicator.vue'
 import { el } from 'element-plus/es/locale/index.mjs'
-import jsonData from '../assets/chatDemo.json'
+// import jsonData from '../assets/chatDemo.json'
 import { file } from 'jszip'
 
+
+import axios from 'axios'
+
+const jsonData = ref({
+  target: [
+    {
+      "speaker": "User",
+      "message": "要求",
+      "next": false,
+      "file": "",
+      "step": 0
+    }]
+})
+
+async function fetchJsonData() {
+  try {
+    const response = await fetch('https://personalized-edu-1322695558.cos.ap-beijing.myqcloud.com/demo/chatDemo.json');
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    // jsonData.value = data.conversations;
+    jsonData.value.target = data.conversations;
+  } catch (error) {
+    console.error('Error fetching JSON data:', error);
+  }
+}
+
+onMounted(() => {
+  fetchJsonData();
+});
 
 
 
@@ -123,7 +154,7 @@ if (!uuid || uuid === '0') {
       uuid: uuid,
       isEdit: false,
       createDate: new Date().toLocaleString(),
-      lastChatContent: 'Hello I am ChatGPT3.5...',
+      lastChatContent: '你好，我是智慧教学助手',
       active: true
     })
   } else {
@@ -265,8 +296,8 @@ async function onConversation() {
     return
   }
 
-  let message = jsonData.conversations[chatDemoStep].message
-  if (jsonData.conversations[chatDemoStep].next) {
+  let message = jsonData.value.target[chatDemoStep].message
+  if (jsonData.value.target[chatDemoStep].next) {
     handleStepChange(currentStep.value + 1)
   }
   chatDemoStep++
@@ -283,7 +314,7 @@ async function onConversation() {
       messages: [
         {
           role: "user",
-          content: message,
+          content: promptMessage,
         },
       ],
       temperature: 0.7,
@@ -305,7 +336,7 @@ async function onConversation() {
         "index": 0,
         "delta": {
           "role": "assistant",
-          "content": jsonData.conversations[chatDemoStep].message
+          "content": jsonData.value.target[chatDemoStep].message
         }
       }
     ]
@@ -314,25 +345,30 @@ async function onConversation() {
   let ssdata = JSON.parse(JSON.stringify(data))
 
   setTimeout(() => {
-
-    if (jsonData.conversations[chatDemoStep].step === 1) {
-      fileList1.value.push(jsonData.conversations[chatDemoStep].file)
-    }
-    else if (jsonData.conversations[chatDemoStep].step === 2) {
-      fileList2.value.push(jsonData.conversations[chatDemoStep].file)
-    }
-    else if (jsonData.conversations[chatDemoStep].step === 3) {
-      fileList3.value.push(jsonData.conversations[chatDemoStep].file)
-    }
-    else if (jsonData.conversations[chatDemoStep].step === 4) {
-      fileList4.value.push(jsonData.conversations[chatDemoStep].file)
-    }
-    else if (jsonData.conversations[chatDemoStep].step === 5) {
-      fileList5.value.push(jsonData.conversations[chatDemoStep].file)
-    }
-
     messageList.value[messageList.value.length - 1].receive = ssdata
     messageList.value[messageList.value.length - 1].loading = false
+
+
+
+      if (jsonData.value.target[chatDemoStep].step === 1) {
+        fileList1.value.push(jsonData.value.target[chatDemoStep].file)
+      }
+      else if (jsonData.value.target[chatDemoStep].step === 2) {
+        fileList2.value.push(jsonData.value.target[chatDemoStep].file)
+      }
+      else if (jsonData.value.target[chatDemoStep].step === 3) {
+        fileList3.value.push(jsonData.value.target[chatDemoStep].file)
+      }
+      else if (jsonData.value.target[chatDemoStep].step === 4) {
+        fileList4.value.push(jsonData.value.target[chatDemoStep].file)
+      }
+      else if (jsonData.value.target[chatDemoStep].step === 5) {
+        fileList5.value.push(jsonData.value.target[chatDemoStep].file)
+      }
+
+
+
+
 
     chatDemoStep++
 
@@ -341,7 +377,7 @@ async function onConversation() {
 
 
 
-  }, 1500);
+  }, 2500);
 
 
 
@@ -525,7 +561,7 @@ function handleDele(selectedUuid: string) {
       </div>
       <!-- </div> -->
     </el-aside>
-    <div class="main px-xl-5 px-lg-4 px-3">
+    <div class="main px-xl-2 px-lg-2 px-2">
       <div class="chat-body">
         <!-- Chat Box Header -->
         <div class="chat-header border-bottom py-xl-4 py-md-3 py-2">
@@ -562,7 +598,7 @@ function handleDele(selectedUuid: string) {
                 <div class="message-body">
                   <span class="date-time text-muted">教学助手</span>
                   <div class="message-row d-flex align-items-center">
-                    <div class="message-content p-3">
+                    <div class="message-content">
                       <v-md-preview
                         :text="item.receive.choices[0].message ? item.receive.choices[0].message.content : item.receive.choices[0].delta.content"></v-md-preview>
                     </div>
@@ -622,22 +658,22 @@ function handleDele(selectedUuid: string) {
     </div>
 
     <div class="main px-xl-1 px-lg-1 px-1">
-      <div v-if="currentStep === 0">
+      <div v-if="currentStep === 0" style="height: 100%;">
         <Requirement></Requirement>
       </div>
-      <div v-if="currentStep === 1">
+      <div v-if="currentStep === 1" style="height: 100%;">
         <CourseIntroduction :fileList1="fileList1"></CourseIntroduction>
       </div>
-      <div v-else-if="currentStep === 2">
+      <div v-else-if="currentStep === 2" style="height: 100%;">
         <Outline :fileList2="fileList2"></Outline>
       </div>
-      <div v-else-if="currentStep === 3">
+      <div v-else-if="currentStep === 3" style="height: 100%;">
         <LessonPlan :fileList3="fileList3"></LessonPlan>
       </div>
-      <div v-else-if="currentStep === 4">
+      <div v-else-if="currentStep === 4" style="height: 100%;">
         <LectureNote :fileList4="fileList4"></LectureNote>
       </div>
-      <div v-else-if="currentStep === 5">
+      <div v-else-if="currentStep === 5" style="height: 100%;">
         <PPT :fileList5="fileList5"></PPT>
       </div>
     </div>

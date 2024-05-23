@@ -1,4 +1,27 @@
 <template>
+
+  <WordDisplay :srcList="fileList5" />
+  <!-- <WordDisplay :urlList="props.fileList/> -->
+</template>
+
+
+<script lang="ts" setup>
+import { defineProps } from 'vue'
+import { watch } from 'vue'
+// import { type PropType } from 'vue';
+
+const props = defineProps<{
+fileList5: string[]
+}>()
+</script>
+
+
+
+
+
+
+
+<!-- <template>
   <el-button-group>
     <el-button type="primary" @click="downVersion">上个版本</el-button>
     <el-button type="primary">版本：{{ version }}/{{ fileList5.length }}</el-button>
@@ -203,4 +226,4 @@ methods: {
   /* max-width: 1000px; */
   margin: 0 auto;
 }
-</style>
+</style> -->

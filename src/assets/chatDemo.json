@@ -95,7 +95,7 @@
             "speaker": "AI",
             "message": "V1",
             "next": false,
-            "file": "https://personalized-edu-1322695558.cos.ap-beijing.myqcloud.com/demo/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%AE%B2%E4%B9%89v1.docx",
+            "file": "https://personalized-edu-1322695558.cos.ap-beijing.myqcloud.com/demo/%E8%AE%B2%E4%B9%89.xlsx",
             "step": 4
         },
         {
@@ -123,7 +123,7 @@
             "speaker": "AI",
             "message": "回答PPT1",
             "next": false,
-            "file": "https://personalized-edu-1322695558.cos.ap-beijing.myqcloud.com/demo/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0PPT.pptx",
+            "file": "https://personalized-edu-1322695558.cos.ap-beijing.myqcloud.com/demo/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0PPT.pdf",
             "step": 5
         },
         {
