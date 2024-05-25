@@ -12,12 +12,12 @@ import Outline from '@/components/FileDisplay/Outline.vue'
 import Requirement from '@/components/FileDisplay/Requirement.vue'
 import StepIndicator from '../components/StepIndicator/StepIndicator.vue'
 import { Promotion } from '@element-plus/icons-vue'
+import { CirclePlus } from '@element-plus/icons-vue'
 import { el } from 'element-plus/es/locale/index.mjs'
-// import jsonData from '../assets/chatDemo.json'
 import { file } from 'jszip'
-
-
 import axios from 'axios'
+
+
 
 const jsonData = ref({
   target: [
@@ -29,6 +29,8 @@ const jsonData = ref({
       "step": 0
     }]
 })
+
+
 
 async function fetchJsonData() {
   try {
@@ -44,6 +46,7 @@ async function fetchJsonData() {
   }
 }
 
+
 onMounted(() => {
   fetchJsonData();
 });
@@ -56,7 +59,7 @@ const { scrollRef, scrollToBottom } = useScroll()
 
 // 临时
 // 用于记录chatDemo.json中的对话的步骤
-let chatDemoStep = 0
+let chatDemoStep = ref(0)
 
 // 记录当前文件列表
 // let fileList = ref<[string[]]>([[]])
@@ -65,13 +68,6 @@ let fileList2 = ref<string[]>([])
 let fileList3 = ref<string[]>([])
 let fileList4 = ref<string[]>([])
 let fileList5 = ref<string[]>([])
-
-// 注入fileList
-// provide('fileList1', fileList1.value)
-// provide('fileList2', fileList2.value)
-// provide('fileList3', fileList3.value)
-// provide('fileList4', fileList4.value)
-// provide('fileList5', fileList5.value)
 
 
 
@@ -83,8 +79,13 @@ let showTab = ref<string>("nav-tab-chat")
 
 // 步骤切换
 const currentStep = ref(0);
+const currentMaxStep = ref(0)
 const handleStepChange = (newStep: number) => {
   currentStep.value = newStep
+}
+
+const handleMaxStepChange = (newStep: number) => {
+  currentMaxStep.value = newStep
 }
 
 // 输入框的消息
@@ -141,28 +142,30 @@ if (conversations) {
   conversationList.value = JSON.parse(conversations)
 }
 
+
 // Check if new conversation
 // 创建新对话或者加载现有对话
 if (!uuid || uuid === '0') {
+  console.log('对话列表为空，创建新对话')
   uuid = Date.now().toString()
 
   // Initialize empty conversation
   if (!conversations) {
-    // conversations为空，创建新对话
-    conversationList.value.push({
-      title: '教学助手',
-      uuid: uuid,
-      isEdit: false,
-      createDate: new Date().toLocaleString(),
-      lastChatContent: '你好，我是智慧教学助手',
-      active: true
-    })
+    handleAdd()
+
+
+
+
+
+
+
+
   } else {
     // 如果有历史记录，获取最后一次对话
     let lastConversation = conversationList.value[conversationList.value.length - 1]
     uuid = lastConversation.uuid
 
-    let messages = window.localStorage.getItem(uuid)
+    let messages = window.localStorage.getItem(uuid + 'messages')
     if (messages) {
       messageList.value = JSON.parse(messages)
     }
@@ -172,10 +175,38 @@ if (!uuid || uuid === '0') {
   }
 } else {
   // 加载当前对话
-  let messages = window.localStorage.getItem(uuid)
+  let messages = window.localStorage.getItem(uuid + 'messages')
+
+  let fileList11 = window.localStorage.getItem(uuid + 'fileList1')
+  let fileList22 = window.localStorage.getItem(uuid + 'fileList2')
+  let fileList33 = window.localStorage.getItem(uuid + 'fileList3')
+  let fileList44 = window.localStorage.getItem(uuid + 'fileList4')
+  let fileList55 = window.localStorage.getItem(uuid + 'fileList5')
   if (messages) {
     messageList.value = JSON.parse(messages)
+
   }
+  if (fileList11) {
+    fileList1.value = JSON.parse(fileList11)
+  }
+  if (fileList22) {
+    fileList2.value = JSON.parse(fileList22)
+  }
+  if (fileList33) {
+    fileList3.value = JSON.parse(fileList33)
+  }
+  if (fileList44) {
+    fileList4.value = JSON.parse(fileList44)
+  }
+  if (fileList55) {
+    fileList5.value = JSON.parse(fileList55)
+  }
+  
+  // fileList1.value = JSON.parse(fileList11)
+    // fileList2.value = JSON.parse(fileList22)
+    // fileList3.value = JSON.parse(fileList33)
+    // fileList4.value = JSON.parse(fileList44)
+    // fileList5.value = JSON.parse(fileList55)
 
   conversationList.value.forEach((item, index) => {
     if (item.uuid == uuid) {
@@ -236,12 +267,37 @@ function handleAdd() {
     active: true
   })
 
+  fileList1.value = []
+  fileList2.value = []
+  fileList3.value = []
+  fileList4.value = []
+  fileList5.value = []
+
+  currentStep.value = 0
+  currentMaxStep.value = 0
+  chatDemoStep.value = 0
+
+
   // 保存当前会话到本地存储
   window.localStorage.setItem("chatStore", JSON.stringify(conversationList.value))
+  window.localStorage.setItem(uuid + 'messages', JSON.stringify(messageList.value))
+  window.localStorage.setItem(uuid + 'fileList1', JSON.stringify(fileList1.value))
+  window.localStorage.setItem(uuid + 'fileList2', JSON.stringify(fileList2.value))
+  window.localStorage.setItem(uuid + 'fileList3', JSON.stringify(fileList3.value))
+  window.localStorage.setItem(uuid + 'fileList4', JSON.stringify(fileList4.value))
+  window.localStorage.setItem(uuid + 'fileList5', JSON.stringify(fileList5.value))
+
+  window.localStorage.setItem(uuid + 'currentStep', JSON.stringify(currentStep.value))
+  window.localStorage.setItem(uuid + 'currentMaxStep', JSON.stringify(currentMaxStep.value))
+  window.localStorage.setItem(uuid + 'chatDemoStep', JSON.stringify(chatDemoStep.value))
+
+
+
 }
 
 // 控制菜单的显示和隐藏
 function handleMenu() {
+  console.log("handleMenu-------------------------------------")
   let rootbody = document.getElementById("rootbody")
   if (rootbody) {
     if (rootbody.classList.value == "") {
@@ -254,15 +310,81 @@ function handleMenu() {
 
 // 切换会话
 function handleSwitch(selectedUuid: string) {
+
+  console.log("handleSwitch-------------------------------------")
   uuid = selectedUuid
+  console.log(uuid)
 
   // Reset message record of the new conversation
-  let messages = window.localStorage.getItem(selectedUuid)
+  let messages = window.localStorage.getItem(selectedUuid + 'messages')
+
+  let fileList11 = window.localStorage.getItem(selectedUuid + 'fileList1')
+  let fileList22 = window.localStorage.getItem(selectedUuid + 'fileList2')
+  let fileList33 = window.localStorage.getItem(selectedUuid + 'fileList3')
+  let fileList44 = window.localStorage.getItem(selectedUuid + 'fileList4')
+  let fileList55 = window.localStorage.getItem(selectedUuid + 'fileList5')
+
+  let currentStep1 = window.localStorage.getItem(selectedUuid + 'currentStep')
+  let currentMaxStep1 = window.localStorage.getItem(selectedUuid + 'currentMaxStep')
+  let chatDemoStep1 = window.localStorage.getItem(selectedUuid + 'chatDemoStep')
+
   if (messages) {
     messageList.value = JSON.parse(messages)
+
   } else {
     messageList.value = []
   }
+  
+  if (fileList11) {
+    fileList1.value = JSON.parse(fileList11)
+  } else {
+    fileList1.value = []
+  }
+
+  if (fileList22) {
+    fileList2.value = JSON.parse(fileList22)
+  } else {
+    fileList2.value = []
+  }
+
+  if (fileList33) {
+    fileList3.value = JSON.parse(fileList33)
+  } else {
+    fileList3.value = []
+  }
+
+  if (fileList44) {
+    fileList4.value = JSON.parse(fileList44)
+  } else {
+    fileList4.value = []
+  }
+
+  if (fileList55) {
+    fileList5.value = JSON.parse(fileList55)
+  } else {
+    fileList5.value = []
+  }
+
+  if (currentStep1) {
+    currentStep.value = JSON.parse(currentStep1)
+  } else {
+    currentStep.value = 0
+  }
+
+  if (currentMaxStep1) {
+    currentMaxStep.value = JSON.parse(currentMaxStep1)
+  } else {
+    currentMaxStep.value = 0
+  }
+
+  if (chatDemoStep1) {
+    chatDemoStep.value = JSON.parse(chatDemoStep1)
+  } else {
+    chatDemoStep.value = 0
+  }
+
+
+
 
   // Reset active status of the conversation list
   conversationList.value.forEach((item, index) => {
@@ -275,6 +397,8 @@ function handleSwitch(selectedUuid: string) {
 
   router.push({ name: 'Chat', params: { uuid } })
 }
+
+
 
 function handleBackChat() {
   showTab.value = 'nav-tab-chat'
@@ -296,11 +420,12 @@ async function onConversation() {
     return
   }
 
-  let message = jsonData.value.target[chatDemoStep].message
-  if (jsonData.value.target[chatDemoStep].next) {
+  let message = jsonData.value.target[chatDemoStep.value].message
+  if (jsonData.value.target[chatDemoStep.value].next) {
     handleStepChange(currentStep.value + 1)
+    handleMaxStepChange(currentMaxStep.value + 1)
   }
-  chatDemoStep++
+  chatDemoStep.value++
 
 
   // Clear input box and disable button
@@ -336,7 +461,7 @@ async function onConversation() {
         "index": 0,
         "delta": {
           "role": "assistant",
-          "content": jsonData.value.target[chatDemoStep].message
+          "content": jsonData.value.target[chatDemoStep.value].message
         }
       }
     ]
@@ -350,134 +475,42 @@ async function onConversation() {
 
 
 
-    if (jsonData.value.target[chatDemoStep].step === 1) {
-      fileList1.value.push(jsonData.value.target[chatDemoStep].file)
+    if (jsonData.value.target[chatDemoStep.value].step === 1) {
+      fileList1.value.push(jsonData.value.target[chatDemoStep.value].file)
+      window.localStorage.setItem(uuid + 'fileList1', JSON.stringify(fileList1.value))
     }
-    else if (jsonData.value.target[chatDemoStep].step === 2) {
-      fileList2.value.push(jsonData.value.target[chatDemoStep].file)
+    else if (jsonData.value.target[chatDemoStep.value].step === 2) {
+      fileList2.value.push(jsonData.value.target[chatDemoStep.value].file)
+      window.localStorage.setItem(uuid + 'fileList2', JSON.stringify(fileList2.value))
     }
-    else if (jsonData.value.target[chatDemoStep].step === 3) {
-      fileList3.value.push(jsonData.value.target[chatDemoStep].file)
+    else if (jsonData.value.target[chatDemoStep.value].step === 3) {
+      fileList3.value.push(jsonData.value.target[chatDemoStep.value].file)
+      window.localStorage.setItem(uuid + 'fileList3', JSON.stringify(fileList3.value))
     }
-    else if (jsonData.value.target[chatDemoStep].step === 4) {
-      fileList4.value.push(jsonData.value.target[chatDemoStep].file)
+    else if (jsonData.value.target[chatDemoStep.value].step === 4) {
+      fileList4.value.push(jsonData.value.target[chatDemoStep.value].file)
+      window.localStorage.setItem(uuid + 'fileList4', JSON.stringify(fileList4.value))
     }
-    else if (jsonData.value.target[chatDemoStep].step === 5) {
-      fileList5.value.push(jsonData.value.target[chatDemoStep].file)
+    else if (jsonData.value.target[chatDemoStep.value].step === 5) {
+      fileList5.value.push(jsonData.value.target[chatDemoStep.value].file)
+      window.localStorage.setItem(uuid + 'fileList5', JSON.stringify(fileList5.value))
     }
 
-
-
-
-
-    chatDemoStep++
+    chatDemoStep.value++
 
     buttonDisabled.value = false
     scrollToBottom()
 
+    window.localStorage.setItem(uuid + 'messages', JSON.stringify(messageList.value))
+    window.localStorage.setItem("chatStore", JSON.stringify(conversationList.value))
 
+    window.localStorage.setItem(uuid + 'currentStep', JSON.stringify(currentStep.value))
+    window.localStorage.setItem(uuid + 'currentMaxStep', JSON.stringify(currentMaxStep.value))
+    window.localStorage.setItem(uuid + 'chatDemoStep', JSON.stringify(chatDemoStep.value))
 
   }, 2500);
 
 
-
-
-
-
-  // let data = { "id": "8635231172645742753", "created": 1715072859, "model": "glm-4", "choices": [{ "index": 0, "delta": { "role": "assistant", "content": "谢谢" } }] }
-  // let ssdata = JSON.parse(JSON.stringify(data))
-  // console.log('ssdata', ssdata)
-
-  // Stream request to ChatGPT3.5
-  // try {
-
-  //   let data = {
-  //     "model": "glm-4",
-  //     "messages": [{ "role": "user", "content": message }],
-  //     "temperature": 0.7,
-  //     "stream": true
-  //   }
-
-  //   // console.log("data", data)
-
-  //   let headers = {
-  //     'Content-Type': 'application/json',
-  //     'Authorization': 'Bearer ' + import.meta.env.VITE_API_KEY,
-  //   }
-
-  //   // console.log("headers", headers)
-  //   // console.log("import.meta.env.VITE_APP_URL", import.meta.env.VITE_APP_URL)
-
-  //   // Send request
-  //   let response = await fetch(import.meta.env.VITE_APP_URL, {
-  //     method: 'POST',
-  //     headers: headers,
-  //     body: JSON.stringify(data)
-  //   })
-
-  //   // console.log("response", response)
-
-
-  //   const reader = response.body?.getReader();
-  //   // console.log("reader",reader)
-  //   const textDecoder = new TextDecoder()
-  //   let result = true
-  //   console.log('messageList111', messageList)
-  //   while (reader && result) {
-  //     // Get a chunk
-  //     const { done, value } = await reader.read()
-
-  //     if (done) {
-  //       // console.log('Stream ended')
-  //       result = false
-
-  //       // Restore button state
-  //       buttonDisabled.value = false
-  //       // fileContent.value = ''
-
-  //       // Save current messages
-  //       window.localStorage.setItem(uuid, JSON.stringify(messageList.value))
-  //       window.localStorage.setItem("chatStore", JSON.stringify(conversationList.value))
-  //       break
-  //     }
-
-
-  //     // Convert chunk string to array
-  //     let chunkText = textDecoder.decode(value)
-  //     chunkText = chunkText.replace(/data:/g, '')
-  //     // chunkText = 'hellohello'
-  //     let results = chunkText.split('\n\n').filter(Boolean)
-  //     // console.log('chunkText', chunkText)
-  //     // console.log('results', results)
-  //     // Iterate through the array and process multiple chunks
-  //     for (let i = 0; i < results.length; i++) {
-  //       var chunk = results[i]
-  //       if (chunk.indexOf('DONE') == -1) {
-  //         var chunkData = JSON.parse(chunk)
-  //         console.log('chunk')
-  //         console.log('chunkData', chunkData)
-  //         if (chunkData.choices[0].delta.content) {
-  //           if (!messageList.value[messageList.value.length - 1].receive) {
-  //             // If it is the first result, set the state directly
-  //             messageList.value[messageList.value.length - 1].receive = chunkData
-  //             // messageList.value[messageList.value.length - 1].receive = ""
-  //             messageList.value[messageList.value.length - 1].loading = false
-  //           } else {
-  //             // console.log('dddddd')
-  //             const lastMessage = messageList.value[messageList.value.length - 1]?.receive;
-  //             if (lastMessage && lastMessage.choices[0].delta.content) {
-  //               lastMessage.choices[0].delta.content += chunkData.choices[0].delta.content;
-  //             }
-  //           }
-  //           scrollToBottom()
-  //         }
-  //       }
-  //     }
-  //   }
-  //   console.log('messageList2222', messageList)
-  // } catch (e) {
-  //   console.log(e)
-  // }
 }
 
 // 删除会话
@@ -497,14 +530,14 @@ function handleDele(selectedUuid: string) {
   if (uuid == selectedUuid) {
     let messages = window.localStorage.getItem(selectedUuid)
     if (messages) {
-      window.localStorage.removeItem(selectedUuid)
+      window.localStorage.removeItem(selectedUuid + 'messages')
       messageList.value = []
     }
   }
 }
 
-
 </script>
+
 
 
 
@@ -512,18 +545,18 @@ function handleDele(selectedUuid: string) {
   <div id="layout" class="common-layout">
 
     <!-- Sidebar -->
-    <el-aside class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" style="width: 350px;">
-      <!-- <div class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth"> -->
+    <el-aside class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" style="width: 340px;">
       <div class="tab-content">
         <!-- Chat Records -->
         <div class="tab-pane fade active show" id="nav-tab-chat" role="tabpanel" v-if="showTab === 'nav-tab-chat'">
           <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="mb-0 text-primary">教育生成系统</h3>
-
-            <div>
-              <el-button round  type="primary" @click="handleAdd" :icon="CirclePlus">新建</el-button>
-            </div>
+            <h4 class="mb-0 text-primary">个性化教育内容生成平台</h4>
           </div>
+          <div style="display: flex;justify-content: space-between;">
+            <div></div>
+            <el-button round type="primary" @click="handleAdd" :icon="CirclePlus">新建</el-button>
+          </div>
+
           <ul class="chat-list">
             <li class="header d-flex justify-content-between ps-3 pe-3 mb-1">
               <span>历史记录</span>
@@ -566,7 +599,7 @@ function handleDele(selectedUuid: string) {
       <div class="chat-body">
         <!-- Chat Box Header -->
         <div class="chat-header border-bottom py-xl-4 py-md-3 py-2">
-          <StepIndicator @changeStep="handleStepChange" :currentStep="currentStep"></StepIndicator>
+          <StepIndicator @changeStep="handleStepChange" :currentStep="currentStep" :currentMaxStep="currentMaxStep"></StepIndicator>
         </div>
         <!-- end Chat Box Header -->
         <div class="chat-content" id="scrollRef" ref="scrollRef">
@@ -642,12 +675,8 @@ function handleDele(selectedUuid: string) {
                     </div>
                     <div class="input-group-append">
                       <span class="input-group-text border-0 pr-0">
-                        <!-- <button type="submit"  :disabled="buttonDisabled"
-                          @click="handleSubmit">
-                          <i class="zmdi zmdi-mail-send"></i>
-                        </button> -->
-                        <el-button circle  type="primary" :icon="Promotion" :disabled="buttonDisabled"
-                          @click="handleSubmit"/>
+                        <el-button circle type="primary" :icon="Promotion" :disabled="buttonDisabled"
+                          @click="handleSubmit" />
                       </span>
                     </div>
                   </div>
@@ -680,8 +709,6 @@ function handleDele(selectedUuid: string) {
         <PPT :fileList5="fileList5"></PPT>
       </div>
     </div>
-    <!-- 后续页面内容可按照实际需求自行添加 -->
-    <!-- <el-main><TextDisplay :text="someText" /></el-main> -->
   </div>
 </template>
 

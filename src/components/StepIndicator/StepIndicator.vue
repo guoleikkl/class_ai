@@ -1,17 +1,18 @@
 <template>
   <div class="segment-style" style="width: 100%; display: flex; justify-content: space-between;">
-    
-    <el-segmented v-model="step" :options="options" @change="updatePage"  />
-    <el-button @click="nextStep"  type="success" round style="background-color: #409EFF; height:  32px; width: 10%;">下一步</el-button>
-  
-  
+
+    <el-segmented v-model="step" :options="options" @change="updatePage" />
+    <el-button @click="nextStep" type="success" round
+      style="background-color: #409EFF; height:  32px; width: 10%;">下一步</el-button>
+
+
   </div>
 </template>
 
 
 <script lang="ts" setup>
 import { useFormLabelWidth } from 'element-plus/es/components/form/src/utils.mjs';
-import { ref, withDefaults, defineProps, defineEmits, watchEffect } from 'vue'
+import { ref, withDefaults, defineProps, defineEmits, watchEffect, type Prop, type PropType } from 'vue'
 import { Right, Download } from '@element-plus/icons-vue'
 
 const props = defineProps({
@@ -19,6 +20,10 @@ const props = defineProps({
     type: Number,
     default: 0
   },
+  currentMaxStep: {
+    type: Number,
+    default: 0
+  }
 
 })
 
@@ -94,12 +99,20 @@ const nextStep = () => {
 
 watchEffect(() => {
   if (props.currentStep < options.length) {
-    
+
 
     options[props.currentStep].disabled = false
     step.value = options[props.currentStep].value;
     // emit('changeStep', props.currentStep + 1)
   }
+
+  for (let i = 0; i <= props.currentMaxStep; i++) {
+    options[i].disabled = false
+  }
+  for (let i = props.currentMaxStep + 1; i < options.length; i++) {
+    options[i].disabled = true
+  }
+
 })
 
 
