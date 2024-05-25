@@ -4,7 +4,6 @@ import { useRoute } from 'vue-router'
 import { router } from '@/router'
 import { useScroll } from './hooks/useScroll'
 import "vue3-pdf-app/dist/icons/main.css"
-import { encode } from 'gpt-tokenizer'
 import CourseIntroduction from '@/components/FileDisplay/CourseIntroduction.vue'
 import LectureNote from '@/components/FileDisplay/LectureNote.vue'
 import LessonPlan from '@/components/FileDisplay/LessonPlan.vue'
@@ -12,6 +11,7 @@ import PPT from '@/components/FileDisplay/PPT.vue'
 import Outline from '@/components/FileDisplay/Outline.vue'
 import Requirement from '@/components/FileDisplay/Requirement.vue'
 import StepIndicator from '../components/StepIndicator/StepIndicator.vue'
+import { Promotion } from '@element-plus/icons-vue'
 import { el } from 'element-plus/es/locale/index.mjs'
 // import jsonData from '../assets/chatDemo.json'
 import { file } from 'jszip'
@@ -77,7 +77,7 @@ let fileList5 = ref<string[]>([])
 
 // Conversation panel toggle control
 let showTab = ref<string>("nav-tab-chat")
-let tabWidth = ref<string>("")
+// let tabWidth = ref<string>("3000px")
 
 
 
@@ -150,7 +150,7 @@ if (!uuid || uuid === '0') {
   if (!conversations) {
     // conversations为空，创建新对话
     conversationList.value.push({
-      title: 'New Chat',
+      title: '教学助手',
       uuid: uuid,
       isEdit: false,
       createDate: new Date().toLocaleString(),
@@ -228,7 +228,7 @@ function handleAdd() {
   uuid = Date.now().toString()
 
   conversationList.value.unshift({
-    title: "New Chat",
+    title: "教学助手",
     uuid: uuid,
     isEdit: false,
     createDate: new Date().toLocaleString(),
@@ -278,7 +278,7 @@ function handleSwitch(selectedUuid: string) {
 
 function handleBackChat() {
   showTab.value = 'nav-tab-chat'
-  tabWidth.value = ''
+  // tabWidth.value = '300px'
 }
 
 
@@ -350,21 +350,21 @@ async function onConversation() {
 
 
 
-      if (jsonData.value.target[chatDemoStep].step === 1) {
-        fileList1.value.push(jsonData.value.target[chatDemoStep].file)
-      }
-      else if (jsonData.value.target[chatDemoStep].step === 2) {
-        fileList2.value.push(jsonData.value.target[chatDemoStep].file)
-      }
-      else if (jsonData.value.target[chatDemoStep].step === 3) {
-        fileList3.value.push(jsonData.value.target[chatDemoStep].file)
-      }
-      else if (jsonData.value.target[chatDemoStep].step === 4) {
-        fileList4.value.push(jsonData.value.target[chatDemoStep].file)
-      }
-      else if (jsonData.value.target[chatDemoStep].step === 5) {
-        fileList5.value.push(jsonData.value.target[chatDemoStep].file)
-      }
+    if (jsonData.value.target[chatDemoStep].step === 1) {
+      fileList1.value.push(jsonData.value.target[chatDemoStep].file)
+    }
+    else if (jsonData.value.target[chatDemoStep].step === 2) {
+      fileList2.value.push(jsonData.value.target[chatDemoStep].file)
+    }
+    else if (jsonData.value.target[chatDemoStep].step === 3) {
+      fileList3.value.push(jsonData.value.target[chatDemoStep].file)
+    }
+    else if (jsonData.value.target[chatDemoStep].step === 4) {
+      fileList4.value.push(jsonData.value.target[chatDemoStep].file)
+    }
+    else if (jsonData.value.target[chatDemoStep].step === 5) {
+      fileList5.value.push(jsonData.value.target[chatDemoStep].file)
+    }
 
 
 
@@ -512,15 +512,16 @@ function handleDele(selectedUuid: string) {
   <div id="layout" class="common-layout">
 
     <!-- Sidebar -->
-    <el-aside class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth">
+    <el-aside class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" style="width: 350px;">
       <!-- <div class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth"> -->
       <div class="tab-content">
         <!-- Chat Records -->
         <div class="tab-pane fade active show" id="nav-tab-chat" role="tabpanel" v-if="showTab === 'nav-tab-chat'">
           <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="mb-0 text-primary">智慧教学</h3>
+            <h3 class="mb-0 text-primary">教育生成系统</h3>
+
             <div>
-              <button class="btn btn-dark" type="button" @click="handleAdd">新建需求</button>
+              <el-button round  type="primary" @click="handleAdd" :icon="CirclePlus">新建</el-button>
             </div>
           </div>
           <ul class="chat-list">
@@ -641,10 +642,12 @@ function handleDele(selectedUuid: string) {
                     </div>
                     <div class="input-group-append">
                       <span class="input-group-text border-0 pr-0">
-                        <button type="submit" class="btn btn-primary btn-blue" :disabled="buttonDisabled"
+                        <!-- <button type="submit"  :disabled="buttonDisabled"
                           @click="handleSubmit">
                           <i class="zmdi zmdi-mail-send"></i>
-                        </button>
+                        </button> -->
+                        <el-button circle  type="primary" :icon="Promotion" :disabled="buttonDisabled"
+                          @click="handleSubmit"/>
                       </span>
                     </div>
                   </div>

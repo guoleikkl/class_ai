@@ -1,8 +1,10 @@
 <template>
-  <div style="width: 100%;">
-    <!-- <el-segmented v-model="options[currentStep]" :options="options" block @change="updatePage" /> -->
-    <el-segmented v-model="step" :options="options" @change="updatePage" style="width: 90%; height: 50px;" />
-    <el-button type="primary" @click="nextStep" :icon="Right" style="height: 45px;"></el-button>
+  <div class="segment-style" style="width: 100%; display: flex; justify-content: space-between;">
+    
+    <el-segmented v-model="step" :options="options" @change="updatePage"  />
+    <el-button @click="nextStep"  type="success" round style="background-color: #409EFF; height:  32px; width: 10%;">下一步</el-button>
+  
+  
   </div>
 </template>
 
@@ -25,6 +27,16 @@ const props = defineProps({
 const emit = defineEmits(['changeStep'])
 
 
+
+const value_2 = ref('')
+
+const options_2 = [
+  {
+    label: '下一步',
+    value: '下一步',
+    disabled: false
+  }
+]
 
 
 const options = [
@@ -70,6 +82,8 @@ const updatePage = (newval: any) => {
 
 // 点击下一步
 const nextStep = () => {
+  console.log('121212')
+
   if (props.currentStep < options.length - 1) {
 
     options[props.currentStep + 1].disabled = false
@@ -90,3 +104,14 @@ watchEffect(() => {
 
 
 </script>
+
+<style scoped>
+.segment-style .el-segmented {
+  width: 80%;
+  height: 36px;
+
+
+  --el-segmented-item-selected-bg-color: #409EFF;
+  --el-border-radius-base: 16px;
+}
+</style>

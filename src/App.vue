@@ -6,7 +6,9 @@ import { RouterLink, RouterView } from 'vue-router'
   <RouterView />
 </template>
 
-<style>
+<style lang="scss">
+
+@import './assets/styles/global.scss';
 #app {
   height: 100%;
 }
