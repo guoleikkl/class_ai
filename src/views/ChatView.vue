@@ -526,7 +526,7 @@ function handleDele(selectedUuid: string) {
           </div>
           <ul class="chat-list">
             <li class="header d-flex justify-content-between ps-3 pe-3 mb-1">
-              <span>RECENT CHATS</span>
+              <span>历史记录</span>
             </li>
             <!-- 会话列表 -->
             <li v-for="(item, index) in conversationList" :class="[item.active ? 'active' : '']"
