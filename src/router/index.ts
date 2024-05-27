@@ -5,7 +5,12 @@ import type { App } from 'vue'
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    name: 'Root',
+    name: 'root',
+    redirect: '/signin',
+  },
+  {
+    path: '/home',
+    name: 'chat',
     redirect: '/chat',
     children: [
       {
