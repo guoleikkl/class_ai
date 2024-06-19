@@ -74,6 +74,11 @@ const options = [
     label: 'PPT',
     value: 'PPT',
     disabled: true
+  },
+  {
+    label: '数字人',
+    value: '数字人',
+    disabled: true
   }
 ]
 

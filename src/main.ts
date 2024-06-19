@@ -8,6 +8,8 @@ import githubTheme from '@kangc/v-md-editor/lib/theme/github.js'
 import '@kangc/v-md-editor/lib/theme/style/github.css'
 // import 'WordDisplay' from '@/components/FileDisplay/WordDisplay.vue'
 
+import VueVideoPlayer from '@videojs-player/vue'
+import 'video.js/dist/video-js.css'
 
 
 // vue-markdown highlightjs
@@ -30,6 +32,7 @@ app.use(ElementPlus)
 app.use(router)
 
 app.use(VMdPreview)
+app.use(VueVideoPlayer)
 app.component('WordDisplay', WordDisplay)
 
 app.mount('#app')

@@ -4,11 +4,6 @@ import { useRoute } from 'vue-router'
 import { router } from '@/router'
 import { useScroll } from './hooks/useScroll'
 import "vue3-pdf-app/dist/icons/main.css"
-import CourseIntroduction from '@/components/FileDisplay/CourseIntroduction.vue'
-import LectureNote from '@/components/FileDisplay/LectureNote.vue'
-import LessonPlan from '@/components/FileDisplay/LessonPlan.vue'
-import PPT from '@/components/FileDisplay/PPT.vue'
-import Outline from '@/components/FileDisplay/Outline.vue'
 import Requirement from '@/components/FileDisplay/Requirement.vue'
 import StepIndicator from '../components/StepIndicator/StepIndicator.vue'
 import { Promotion } from '@element-plus/icons-vue'
@@ -16,6 +11,14 @@ import { CirclePlus } from '@element-plus/icons-vue'
 import { el } from 'element-plus/es/locale/index.mjs'
 import { file } from 'jszip'
 import axios from 'axios'
+
+// import侧边文件展示组件
+import CourseIntroduction from '@/components/FileDisplay/CourseIntroduction.vue'
+import LectureNote from '@/components/FileDisplay/LectureNote.vue'
+import LessonPlan from '@/components/FileDisplay/LessonPlan.vue'
+import PPT from '@/components/FileDisplay/PPT.vue'
+import Outline from '@/components/FileDisplay/Outline.vue'
+import DigitalHuman from '@/components/FileDisplay/DigitalHuman.vue'
 
 
 
@@ -707,6 +710,10 @@ function handleDele(selectedUuid: string) {
       </div>
       <div v-else-if="currentStep === 5" style="height: 100%;">
         <PPT :fileList5="fileList5"></PPT>
+      </div>
+      <div v-else-if="currentStep === 6" style="height: 100%;">
+        <DigitalHuman></DigitalHuman>
+
       </div>
     </div>
   </div>
